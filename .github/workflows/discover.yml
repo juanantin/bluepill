@@ -30,7 +30,20 @@ jobs:
           node-version: '24'
       - name: Ask the network
         env:
-          TOKEN: ${{ inputs.token }}
+          # TEMPORARY: pointed at the REWARD token, not $BLUEPILL.
+          #
+          # The first run could not read the reward token at all. It finds it
+          # as the other side of the deepest DexScreener pair, and DexScreener
+          # has no pair for this token yet — swap_count is 0, it has not
+          # traded. So "reward (none)", and its symbol()/name()/decimals()
+          # went unread.
+          #
+          # The platform's /api/coins says quote_decimals 8. That is exactly
+          # the $BOX shape — an 18-decimal token whose reward token is 8 — and
+          # assuming 18 there published 25.244695737 as 2.5244695737e-9. So it
+          # gets READ off the contract rather than taken from the API, which
+          # is what this run is for. Revert to ${{ inputs.token }} afterwards.
+          TOKEN: '0xb20000000000000000000018fe7ec7d6dfeeb528'
           RPC_URL: ${{ secrets.RPC_URL }}
           # Addresses to test as the distributor: the reward token should flow
           # both in and out of the real one. Comma-separated.

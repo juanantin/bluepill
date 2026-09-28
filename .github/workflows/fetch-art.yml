@@ -7,6 +7,12 @@ name: Fetch the token's artwork
 #
 # Run by pushing to this file. Whatever it fetches is the LAUNCH artwork — if
 # the owner has something better, theirs wins and this is just a floor.
+#
+# For $BLUEPILL the discovery run already confirmed both URLs are present in
+# the platform's /api/coins entry (an `image` and a `banner` on pinata), so
+# this has something real to pull. The owner is supplying their own header and
+# footer backgrounds separately; these land in images/src/ as a floor and as
+# provenance for what the token actually launched with.
 
 on:
   push:
