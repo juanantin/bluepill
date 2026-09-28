@@ -16,12 +16,14 @@ accurately rather than inherited from the branding.
 > medicine, a medical claim, or medical advice. The notice is repeated in the
 > page footer, where visitors actually see it.
 
-⚠ **Bootstrap state.** The contract address and the X account are set.
-Everything the network has to answer — the pool, the reward token and its
-decimals, the launch block, the fee locker, the rewards index — is **null on
-purpose**, and the artwork has not landed yet. See
-[`SETUP.md`](SETUP.md) for the order these get filled in and why the nulls
-matter.
+**State.** Addresses, artwork and the indexer are all in. What is left is the
+deployment: connect Vercel, put the URL into the OG/Twitter meta and the
+`SITE_URL` repository variable, and run the probe. See [`SETUP.md`](SETUP.md).
+
+⚠ The token **has not traded yet** — the platform reports `swap_count` 0. So
+market cap, liquidity and volume render as em dashes, fees and distribution
+are a measured zero, and the holder count is 1. That is the site working, not
+the site broken.
 
 Copied from [`juanantin/purr`](https://github.com/juanantin/purr), which came
 from `blue`, which came from `box`. Where a lesson below is written in one of
@@ -52,7 +54,13 @@ worker/               the same indexer as a Cloudflare Worker (optional)
   it, so the page opens on the artwork.
 - **Hero** — the product photograph, full-bleed. It carries the wordmark and
   the pitch, so the `<h1>` behind it is screen-reader only rather than
-  painted twice.
+  painted twice. The frame's ratio matches the artwork's own 3:2 exactly, so
+  nothing is cropped horizontally; a `max-height` cap keeps it from eating
+  the whole viewport and trims the reflective floor instead.
+- **The pill field** — the second photograph, pinned to the viewport behind
+  everything below the hero, so the panels scroll over it. Done as a fixed
+  ELEMENT rather than `background-attachment: fixed`, which iOS Safari sizes
+  to the document instead of the viewport and renders hugely zoomed.
 - **Label panel** — the drug-facts parody: strength, total supply, "active
   ingredients" (what each transaction actually does) and "inactive
   ingredients" (the joke). The layout is the parody; every claim in it is
@@ -71,12 +79,20 @@ decoration: the wordmark and every figure are set in it, and asking for a
 weight the file does not carry makes the browser synthesise it, which smears
 the stems.
 
-The palette is sampled from the mockup: `--ink` is the deep blue of the
-carton's side panel, `--accent` the brighter blue of the 50 mg badge and every
-icon. `--hero-ground` and `--foot-ground` sit **under** the two photographs —
-they are what a visitor sees before the artwork loads and what shows at ratios
-the photograph does not fill, so **resample them from the real artwork** when
-it lands or the letterboxing reads as a seam.
+The palette is sampled from the artwork, not picked by eye: `--ink` is the
+deep blue of the carton's side panel, `--accent` the brighter blue of the
+50 mg badge and every icon. `--hero-ground` (`#3a72d7`) and `--page`
+(`#2b5ebf`) sit **under** the two photographs — they are what a visitor sees
+before the artwork loads and what shows at any ratio it does not fill — and
+both were measured from the delivered files. `images/src/README.md` has the
+one-liner that measures them; re-run it if the artwork changes, or the
+letterboxing reads as a seam.
+
+Two things a first render caught, both recorded in the stylesheet: the top bar
+needed a gradient scrim, because white chrome over the carton's white face
+rendered as three ghost outlines; and the footer scrim had to be **light**
+rather than dark, because both ecosystem lockups are dark artwork on
+transparency and vanished against a dark band.
 
 Card icons are inline SVG on a shared stroke spec, so the six read as one set.
 Every figure is set in tabular numerals, so a value that ticks up on refresh

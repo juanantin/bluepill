@@ -31,13 +31,23 @@
   --card-row:     #edf3fc;
   --hairline:     #d7e3f5;
 
-  /* The grounds under the two photographs. These are what a visitor sees
-     before the artwork loads, and what shows at ratios the photograph does
-     not fill — so RESAMPLE THEM FROM THE ARTWORK when it lands, or the
-     letterboxing will read as a seam. */
-  --hero-ground:  #2a5ac8;
-  --foot-ground:  #1b47b0;
-  --page:         #2450c4;
+  /* The grounds under the photographs — what a visitor sees before the
+     artwork loads and what shows at any ratio it does not fill. SAMPLED from
+     the delivered files, not picked by eye: --hero-ground is the mean of the
+     header's own top and bottom border bands, --page the mean of the pill
+     field's top edge. A guessed value here reads as a seam. */
+  --hero-ground:  #3a72d7;
+  --page:         #2b5ebf;
+  /* The scrim the footer lays over the pill field. LIGHT, not dark, for two
+     reasons that agreed with each other: the mockup's lower band is white
+     with dark blue type, and both ecosystem lockups are dark artwork on
+     transparency — over a dark scrim they disappeared almost completely,
+     which a first render caught. A scrim is still needed rather than no
+     scrim at all, because the field is viewport-fixed: which part of the
+     photograph lands behind the footer changes with the page's height, so
+     without it legibility is a matter of luck. */
+  --foot-scrim-a: rgba(255, 255, 255, .84);
+  --foot-scrim-b: rgba(255, 255, 255, .94);
 
   --radius:       18px;
   --radius-sm:    12px;
@@ -57,6 +67,8 @@ html { -webkit-text-size-adjust: 100%; }
 
 body {
   margin: 0;
+  /* Colour only. The photograph lives on .pillfield below, which is fixed to
+     the viewport so the content scrolls over it. */
   background: var(--page);
   color: var(--ink);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
@@ -92,6 +104,30 @@ a { color: inherit; text-decoration: none; }
   padding-inline: var(--gutter);
 }
 
+/* ---------- The pill field -------------------------------------------- */
+/* The parallax backdrop: the supplied pill photograph, pinned to the
+   viewport so every section below the hero scrolls over it rather than
+   carrying it along. Everything above --page shows through — the panels are
+   white cards floating on it, exactly as the mockup has them.
+
+   Done as a FIXED ELEMENT rather than `background-attachment: fixed` on the
+   body, deliberately. iOS Safari has never handled fixed attachment
+   properly: it sizes the image to the document instead of the viewport, so
+   the picture arrives enormously zoomed and jitters while scrolling. A
+   position:fixed element is plain, well-supported layout and behaves the
+   same everywhere.
+
+   aria-hidden and empty: it is scenery, and a screen reader announcing it
+   would be announcing nothing. */
+.pillfield {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: var(--page) center / cover no-repeat;
+  background-image: image-set(url('../../images/bg.webp?v=9') type('image/webp'),
+                              url('../../images/bg.jpg?v=9') type('image/jpeg'));
+}
+
 /* ---------- Top bar --------------------------------------------------- */
 /* Sits OVER the hero rather than above it, so the page opens on the artwork.
    Absolute, not fixed: a fixed bar over a tall product photograph follows the
@@ -103,6 +139,26 @@ a { color: inherit; text-decoration: none; }
   inset: 0 0 auto 0;
   z-index: 3;
   padding-block: 18px;
+}
+
+/* A scrim under the chrome, and it is not decoration. The bar sits over the
+   carton's WHITE face, so white buttons on white card rendered as three
+   ghost outlines — the CA button, the one control nobody can guess, worst of
+   all. A first render caught it. The gradient is strongest exactly where the
+   type is and gone by the bottom of the bar, so the photograph is untouched
+   everywhere it matters.
+   pointer-events: none so it never eats a click meant for a button. */
+.topbar::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 190%;
+  background: linear-gradient(to bottom,
+              rgba(6, 30, 84, .58) 0%,
+              rgba(6, 30, 84, .30) 45%,
+              rgba(6, 30, 84, 0) 100%);
+  pointer-events: none;
+  z-index: -1;
 }
 
 .topbar__rail {
@@ -234,20 +290,35 @@ a { color: inherit; text-decoration: none; }
 .hero__frame {
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 9;
+  /* EXACTLY the delivered artwork's ratio — 1536×1024 is 3:2 — so
+     object-fit: cover crops nothing at any width. That is the point: the
+     carton spans almost the full frame, and a horizontal crop takes its ends
+     off, which is how you lose "50 mg" from one side and the Base pill from
+     the other. If the artwork is ever replaced at a different shape, change
+     this one declaration to match it rather than letting cover decide. */
+  aspect-ratio: 3 / 2;
+  /* …but capped, because 3:2 at 1440 wide is 960px of hero and the dashboard
+     never appears. The cap crops VERTICALLY only: the artwork's top is
+     out-of-focus pills and its bottom is reflective floor, while the carton
+     sits between roughly 11% and 82% of the height, so ~9% off each end
+     never touches it. Horizontal crop is the one that must not happen — it
+     takes "50 mg" off one side and the Base pill off the other — and
+     aspect-ratio plus centred cover is what prevents it. */
+  max-height: 78vh;
   overflow: hidden;
   background: var(--hero-ground);
 }
 
-/* object-fit: cover crops silently when the artwork's ratio and the frame's
-   disagree. The frame is 16:9; supply the hero at that ratio, or change this
-   ONE declaration rather than letting the crop decide what gets lost. The
-   carton sits centre-left in the mockup, so the crop is biased to keep it. */
 .hero__img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 45% 50%;
+  /* Biased UP the frame, so what the max-height cap trims comes off the
+     BOTTOM — which is reflective floor — rather than being split evenly and
+     taking the top of the carton with it. Centred, the cap cropped to within
+     a couple of percent of the box's top edge and the Base mark on its side
+     panel ran into the top bar. */
+  object-position: center 32%;
 }
 
 /* ---------- The two panels -------------------------------------------- */
@@ -433,6 +504,12 @@ a { color: inherit; text-decoration: none; }
 
 .stat__icon svg { width: 27px; height: 27px; }
 
+/* The distributed tile's capsule is the one glyph that is the TOKEN rather
+   than a metric, and at 27px on a 1.7 stroke it read as a paperclip. A
+   heavier stroke and a filled half give it the two-tone a real capsule has. */
+.stat[data-metric="distributed"] .stat__icon svg { stroke-width: 1.9; }
+.stat[data-metric="distributed"] .stat__icon .capsule__half { fill: currentColor; opacity: .22; }
+
 .stat__label {
   font-size: 13.5px;
   font-weight: 500;
@@ -521,13 +598,11 @@ a { color: inherit; text-decoration: none; }
 
 .foot {
   position: relative;
-  background: var(--foot-ground) center / cover no-repeat;
-  /* The lower artwork. Declared here rather than in the markup so the solid
-     ground above is always painted underneath it — the footer is a blue band
-     before the file lands, never a void. */
-  background-image: image-set(url('../../images/footer.webp?v=1') type('image/webp'),
-                              url('../../images/footer.jpg?v=1') type('image/jpeg'));
-  color: #fff;
+  /* No picture of its own: the pill field is already behind it, fixed. This
+     is only the scrim that keeps the type and the lockups legible over
+     whichever part of the photograph happens to sit here. */
+  background: linear-gradient(var(--foot-scrim-a), var(--foot-scrim-b));
+  color: var(--ink);
   padding-block: 40px 34px;
 }
 
@@ -561,7 +636,7 @@ a { color: inherit; text-decoration: none; }
   font-weight: 700;
   letter-spacing: .14em;
   text-transform: uppercase;
-  opacity: .88;
+  color: var(--ink-soft);
 }
 
 .eco__logo { height: 42px; width: auto; }
@@ -570,7 +645,7 @@ a { color: inherit; text-decoration: none; }
 .eco__split {
   width: 1px;
   align-self: stretch;
-  background: rgba(255, 255, 255, .35);
+  background: var(--hairline);
 }
 
 .foot__tagline {
@@ -586,10 +661,12 @@ a { color: inherit; text-decoration: none; }
   margin: 22px auto 0;
   font-size: 11.5px;
   line-height: 1.6;
-  opacity: .82;
+  color: var(--ink-soft);
 }
 
-.foot__fine b { font-weight: 700; opacity: 1; }
+/* The non-affiliation line leads the fine print and is the one sentence in
+   it that has to be read, so it takes the full ink rather than the muted. */
+.foot__fine b { font-weight: 700; color: var(--ink); }
 
 /* ---------- Entrance animations --------------------------------------- */
 /* The markup is visible by default and the inline script opts in by adding
@@ -622,10 +699,6 @@ a { color: inherit; text-decoration: none; }
 
 @media (max-width: 900px) {
   .panels { grid-template-columns: 1fr; gap: 16px; }
-
-  /* Taller frame on a narrow screen: at 16:9 a phone shows a letterbox strip
-     of a photograph built around a centre-left carton. */
-  .hero__frame { aspect-ratio: 4 / 3; }
 }
 
 @media (max-width: 640px) {
@@ -642,8 +715,6 @@ a { color: inherit; text-decoration: none; }
   .actions { gap: 7px; }
 
   .label-card, .stats-card { padding: 21px 18px 22px; }
-
-  .hero__frame { aspect-ratio: 1 / 1; }
 
   .stat { grid-template-columns: 38px 1fr; gap: 12px; padding: 13px 0; }
   .stat__icon { width: 38px; height: 38px; }

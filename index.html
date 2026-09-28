@@ -35,11 +35,11 @@
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="A Bluepill 50mg carton resting on a bed of blue capsules marked with the Base logo.">
+<meta property="og:image:alt" content="A Bluepill 50 mg carton on a bed of blue pills, each stamped with the Base logo.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@BluePillBase">
 <meta name="twitter:image" content="https://REPLACE-WITH-DEPLOYMENT-URL/images/social.jpg">
-<meta name="twitter:image:alt" content="A Bluepill 50mg carton resting on a bed of blue capsules marked with the Base logo.">
+<meta name="twitter:image:alt" content="A Bluepill 50 mg carton on a bed of blue pills, each stamped with the Base logo.">
 <meta name="theme-color" content="#0b45a8">
 
 <!-- favicon.ico sits at the root because browsers request /favicon.ico on
@@ -52,10 +52,10 @@
 
      The ?v= below is what makes a browser let go of the icon it has cached;
      node scripts/stamp.mjs moves all of them together. -->
-<link rel="icon" href="favicon.ico?v=4" sizes="any">
-<link rel="icon" type="image/png" href="images/favicon.png?v=4">
-<link rel="apple-touch-icon" href="images/apple-touch-icon.png?v=4">
-<link rel="manifest" href="site.webmanifest?v=4">
+<link rel="icon" href="favicon.ico?v=9" sizes="any">
+<link rel="icon" type="image/png" href="images/favicon.png?v=9">
+<link rel="apple-touch-icon" href="images/apple-touch-icon.png?v=9">
+<link rel="manifest" href="site.webmanifest?v=9">
 
 <!-- One face, five weights. 800 is not decoration: the Bluepill wordmark and
      the figures are set in it, and Inter's 700 is visibly lighter than the
@@ -75,9 +75,18 @@
       media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"></noscript>
 
-<link rel="stylesheet" href="assets/css/styles.css?v=4">
+<link rel="stylesheet" href="assets/css/styles.css?v=9">
 </head>
 <body>
+
+<!-- The parallax backdrop: the supplied pill photograph, pinned to the
+     viewport in the stylesheet so everything below the hero scrolls over it.
+     Empty and aria-hidden because it is scenery — there is nothing in it for
+     a screen reader to announce. It is an element rather than a fixed
+     background on <body> because iOS Safari sizes a fixed background to the
+     document instead of the viewport, which arrives hugely zoomed and
+     jitters as you scroll. -->
+<div class="pillfield" aria-hidden="true"></div>
 
 <!-- ===================== TOP BAR ===================== -->
 <!-- Overlays the hero artwork. The Base lockup sits left, the three actions
@@ -147,19 +156,24 @@
      banner does on the sibling sites, so the <h1> behind it is screen-reader
      only rather than painted twice.
 
-     The frame has a fixed aspect-ratio and a solid blue ground underneath.
-     That ground is not decoration: until images/hero.jpg lands the hero is a
-     blue field rather than a broken-image icon, and once it lands the ground
-     is what the letterboxing shows at ratios the photograph does not fill.
-     Resample --hero-ground from the artwork's own edge when it arrives. -->
+     The frame's aspect-ratio matches the delivered file exactly, so nothing
+     is cropped. --hero-ground sits underneath it, sampled from the mean of
+     the artwork's own top and bottom border bands, so a slow connection
+     shows the picture's own blue rather than white. -->
 <header class="hero">
   <h1 class="sr-only">Bluepill — hold $BLUEPILL on Base and earn $PFEc rewards from trading fees.</h1>
 
   <div class="hero__frame">
     <picture>
-      <source srcset="images/hero.webp?v=4" type="image/webp">
-      <img class="hero__img" src="images/hero.jpg?v=4" alt=""
-           width="2048" height="1152" fetchpriority="high" decoding="async">
+      <source srcset="images/hero.webp?v=9" type="image/webp">
+      <!-- 1536x1024 as delivered, and .hero__frame is set to that same 3:2,
+           so nothing is cropped at any width. alt="" because the artwork's
+           own wording is already the <h1> above — a screen reader that
+           described it too would read the pitch twice.
+           fetchpriority=high: it is the largest paint and the only thing
+           above the fold. -->
+      <img class="hero__img" src="images/hero.jpg?v=9" alt=""
+           width="1536" height="1024" fetchpriority="high" decoding="async">
     </picture>
   </div>
 </header>
@@ -280,8 +294,13 @@
             <!-- A capsule, angled — the one glyph on the page that is the
                  token rather than a metric. -->
             <svg viewBox="0 0 24 24">
-              <rect x="2.9" y="8.4" width="18.2" height="7.2" rx="3.6" transform="rotate(-38 12 12)"/>
-              <path d="M9.1 15.4 15.4 9.1"/>
+              <!-- A capsule on the diagonal, split across its middle: the
+                   filled half is what stops it reading as a paperclip at
+                   27px. Both halves are one rect plus one divider so the
+                   outline stays a single closed shape. -->
+              <path class="capsule__half" d="M4.4 12.9a3.6 3.6 0 0 1 0-5.1l3.4-3.4a3.6 3.6 0 0 1 5.1 5.1l-3.4 3.4a3.6 3.6 0 0 1-5.1 0Z" stroke="none"/>
+              <rect x="2.9" y="8.4" width="18.2" height="7.2" rx="3.6" transform="rotate(-45 12 12)"/>
+              <path d="M9.15 14.85 14.85 9.15"/>
             </svg>
           </span>
           <div class="stat__body">
@@ -475,7 +494,7 @@
 <!-- ?v= is the cache buster: run `node scripts/stamp.mjs` on every deploy,
      which moves every ?v= here and `version` in config.js together. Skip it
      and a CDN keeps serving the previous config.js and app.js. -->
-<script src="config.js?v=4"></script>
-<script src="assets/js/app.js?v=4"></script>
+<script src="config.js?v=9"></script>
+<script src="assets/js/app.js?v=9"></script>
 </body>
 </html>

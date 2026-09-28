@@ -4,9 +4,9 @@ The checklist for pointing the site at a token, in the order that works. It
 was used on three builds before this one; the order is not cosmetic, because
 several of the steps below make the next one safe.
 
-**State for $BLUEPILL right now:** step 1 is half done (the contract address
-and the X account are set; everything the network must answer is null), and
-steps 0, 2, 3 and 4 are outstanding.
+**State for $BLUEPILL right now:** steps 0, 1, 2 and 3 are **done** — read
+them as the record of what was set and why. What remains is **step 4** (connect
+Vercel, wire the deployment URL and `SITE_URL`) and then step 5.
 
 ## 0. Let the network answer first
 
@@ -75,11 +75,14 @@ setting on the platform's panel, and artwork.
 - `holderShare` — **check the token's own Stockify panel.** It is the one
   multiplier between the measured outflow and the figure on the tile.
 
-## 2. Branding
+## 2. Branding — done
 
-Everything here is outstanding. [`images/src/README.md`](images/src/README.md)
-is the full instruction sheet — what to drop in, and the commands that derive
-every served file from it. In short:
+The owner supplied three files, now in `images/src/`: `bluepill_header.png`
+(1536×1024), `bluepill_bg.png` (the pill field) and `bluepill_icon.png` (a
+clean transparent cut-out). Everything the page serves is derived from them —
+4.6 MB of PNG down to about 900 KB served.
+[`images/src/README.md`](images/src/README.md) carries every command, and is
+the file to read before replacing any of them. The rules that governed it:
 
 - `images/hero.jpg` + `.webp` — the header photograph. The hero frame is
   **16:9** (4:3 under 900px, 1:1 under 640px); `object-fit: cover` crops
