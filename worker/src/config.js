@@ -1,53 +1,60 @@
 /* ==========================================================================
    What the indexer watches — $BLUEPILL on Base.
    --------------------------------------------------------------------------
-   ⚠ BOOTSTRAP STATE. Every address below is null on purpose. They are read
-   from the network by .github/workflows/discover.yml (scripts/
-   discover-token.mjs) — never carried over from the token this site was
-   copied from, and never read off the artwork.
+   Every address here was READ FROM THE NETWORK by .github/workflows/
+   discover.yml (scripts/discover-token.mjs) — never carried over from the
+   token this site was copied from, and never read off the artwork.
 
-   While MISSING (below) is non-empty, scripts/index-rewards.mjs and the
-   worker both REFUSE to scan. That refusal is the feature: a run against an
-   unset index sums nothing and commits nulls every quarter hour, and on the
-   page that is indistinguishable from a site that is broken.
-
-   Once these are filled: reconcile against what thestonks.exchange and
-   stockify.finance publish for $BLUEPILL before trusting a number —
-   scripts/panel-probe.mjs prints both side by side. On $BLUE they agreed to
-   five decimal places, which is the bar.
+   ⚠ Reconcile against what thestonks.exchange and stockify.finance publish
+   for $BLUEPILL before trusting a number — scripts/panel-probe.mjs prints
+   both side by side. On $BLUE they agreed to five decimal places, which is
+   the bar. Nothing has traded yet (swap_count 0), so there is nothing to
+   reconcile against and every total below will legitimately be zero until
+   the first swap.
    ========================================================================== */
 
 export const CHAIN_ID = 8453;                    // Base
 
 export const TOKENS = {
-  // The token people buy. Supplied by the owner, not discovered.
+  // The token people buy. Supplied by the owner; symbol() "BLUEPILL",
+  // name() "BLUEPILL", decimals() 18, totalSupply 1,000,000,000 — all read
+  // off chain and all matching what the artwork claims.
   STR: '0x9AA5dd27a7681E103880B159A358AC18FD04576A',
   /* The reward token holders are paid in — the quote side of the pair.
-     ⚠ NULL UNTIL DISCOVERY RUNS. The artwork says $PFE, but the platform pays
-     in a TOKENIZED WRAPPER, not the listed equity: on $BOX the wrapper's own
-     symbol() read "AMZNc". The address is the reading that matters here; the
-     ticker is decoration on top of it. */
-  KEX: null,
+     symbol() "PFEc", name() "Pfizer Inc", decimals() 8, read off THIS
+     contract. A TOKENIZED WRAPPER, not the listed equity, and note the
+     ticker: PFEc, not the PFE the artwork says — the same decoration $BOX's
+     "AMZNc" carried. */
+  KEX: '0xb20000000000000000000018fe7ec7d6dfeeb528',
 };
 
 export const CONTRACTS = {
-  // The trading pair.
-  pool: null,
-  /* Where trading fees accrue. SHARED BY EVERY COIN on the platform — the
-     same address $BOX, $BLUE and $PURR use — so no stream may sum it: doing
-     so reports the whole platform's fees as this token's. */
-  feeLocker: null,
-  /* The distributor holders are paid from, from /api/fee-routing. Per token —
-     which is what makes summing it this token's flows rather than the
-     platform's. */
-  rewardsIndex: null,
+  // The trading pair, from /api/coins. Venue is aerodrome-slipstream.
+  // Single-sourced: DexScreener has no pair to corroborate it with until
+  // this token trades.
+  pool: '0xa25f096d486925cebe6e80c83db9647a1a5904b7',
+  /* Where trading fees accrue. NO STREAM MAY SUM IT — a locker is shared,
+     and summing it reports other tokens' fees as this one's. It is here to
+     be EXCLUDED from the holder count, nothing else.
+     Note this is not the 0x71D1D363… the three siblings share: different
+     venue, different locker. */
+  feeLocker: '0x43555104f569d17026037e5637691b95c79fd03a',
+  /* The distributor holders are paid from, from /api/fee-routing, which
+     reports this token's routing as "rewards" with this index. It is also
+     the `fee_owner` on the /api/coins entry — two of the platform's own
+     records agreeing. Per token, which is what makes summing it this
+     token's flows rather than the platform's. */
+  rewardsIndex: '0x64cDA502645E0f6eaD8d03d46beb6E04A5b99F0E',
 };
 
-/* The block $BLUEPILL launched at. Nothing relevant happened before it, so
-   the scan starts here rather than at genesis. discover.yml reports it from
-   the platform's /api/coins block_number AND independently from a timestamp
-   search for the pool's own pairCreatedAt; when those two agree, it is right. */
-export const START_BLOCK = null;
+/* The block $BLUEPILL launched at, from the platform's /api/coins
+   block_number. Nothing relevant happened before it, so the scan starts here
+   rather than at genesis.
+
+   ⚠ Only ONE source agrees so far. The usual corroboration is a timestamp
+   search for the pool's own pairCreatedAt, and there is no pairCreatedAt
+   while the token has never traded. Re-confirm after the first swap. */
+export const START_BLOCK = 51805150;
 
 /* Decimals, per token, READ FROM EACH CONTRACT rather than assumed. Two
    constants, never one: on $BOX they differed — its reward token's decimals()
@@ -55,8 +62,14 @@ export const START_BLOCK = null;
    published 25.244695737 as 2.5244695737e-9, every digit right and the scale
    out by ten billion. A token that is "obviously 18" is exactly the one
    nobody checks. */
-export const STR_DECIMALS = null;
-export const KEX_DECIMALS = null;
+export const STR_DECIMALS = 18;   // $BLUEPILL's own decimals(), read on chain
+export const KEX_DECIMALS = 8;    // PFEc's own decimals(), read on chain
+/* ↑ THIS IS THE ONE. They differ, and this is precisely the $BOX shape:
+   there the reward token also returned 8 against an 18-decimal token, and
+   sharing a single constant published 25.244695737 as 2.5244695737e-9 —
+   every digit right, the scale out by ten billion. The artwork says "$PFE"
+   and says nothing about decimals; the contract says 8. Never collapse
+   these two constants into one, even if a future token has them agree. */
 
 /* Everything that has to be real before a scan means anything. index-rewards
    and the worker both refuse to run while this list is non-empty. */
@@ -85,13 +98,20 @@ export const STREAMS = [
 
 /* Share of the outflow that reaches holders — the rest is the protocol's cut.
 
-   ⚠ NOT YET VERIFIED FOR THIS TOKEN. 0.9 is the platform's usual split and
-   what $BOX's, $BLUE's and $PURR's panels read, but it is a per-token setting
-   and the one multiplier between the measured outflow and the figure on the
-   tile. scripts/panel-probe.mjs prints this token's own Stockify panel beside
-   what this site publishes; on $BLUE those agreed to five decimals, which is
-   the bar. Until then the distributed figure is provisional and must not be
-   announced.
+   ⚠⚠ UNVERIFIED, AND THERE IS EVIDENCE AGAINST 0.9 FOR THIS TOKEN. It is
+   what $BOX's, $BLUE's and $PURR's panels read — but this token's /api/coins
+   entry carries `platform_bps: 3000`, which is 30% in basis points. If that
+   is the protocol's cut of the reward flow then holders receive 0.70, and
+   this constant overstates every payout by about 28%.
+
+   Left at 0.9 rather than swapped for a second guess: both are guesses, and
+   with zero swaps the measured outflow is zero, so 0.9 × 0 = 0.7 × 0 and
+   nothing on the page is wrong yet. It WILL be wrong the moment this token
+   trades.
+
+   RESOLVE BEFORE ANNOUNCING ANY PAYOUT FIGURE. scripts/panel-probe.mjs
+   prints this token's own Stockify panel beside what this site publishes;
+   on $BLUE those agreed to five decimals, which is the bar.
 
    Better still, set PROTOCOL_ADDRESS if the protocol's address turns up — the
    cut is then subtracted exactly and survives the percentage changing. */

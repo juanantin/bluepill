@@ -21,7 +21,7 @@ window.SITE_CONFIG = {
      a browser actually has rather than guessing at a cache. Bump it together
      with the ?v= on the script tags in index.html whenever you deploy —
      `node scripts/stamp.mjs` moves all of them at once. */
-  version: '2',
+  version: '3',
 
   /* ---- Token ---------------------------------------------------------- */
 
@@ -32,12 +32,12 @@ window.SITE_CONFIG = {
   /* The token holders are paid in — the quote side of the pair. Used to price
      "total distributed" in USD.
 
-     ⚠ NULL UNTIL DISCOVERY RUNS. The artwork says $PFE, and the platform's
-     reward token is a TOKENIZED WRAPPER rather than the listed equity — on the
-     $BOX sibling the wrapper's own symbol() came back "AMZNc", not "AMZN".
-     What this token's wrapper actually calls itself is a reading, not a guess,
-     and the copy on the page has to match whatever it returns. */
-  rewardTokenAddress: null,
+     READ OFF CHAIN, not taken from the artwork: symbol() "PFEc", name()
+     "Pfizer Inc", decimals() 8. The platform's /api/coins names it as this
+     token's `quote` and agrees on the decimals. It is a TOKENIZED WRAPPER,
+     not the listed equity — and note the ticker is PFEc, not PFE, exactly as
+     $BOX's reward token answered "AMZNc" rather than "AMZN". */
+  rewardTokenAddress: '0xb20000000000000000000018fe7ec7d6dfeeb528',
 
   // Free, keyless, CORS-enabled. Used as the last price source, because it
   // covers tokens DexScreener has no pair for — an index token among them.
@@ -46,32 +46,48 @@ window.SITE_CONFIG = {
   chain: 'base',    // DexScreener chain slug
   chainId: 8453,    // EVM chain id
 
-  /* The block this token launched at — the chain scan starts here.
-     ⚠ NEVER leave a sibling's block in this field and never leave it null
-     once the indexer is on: both mean scanning blocks that have nothing to do
-     with this token. discover.yml reports it from two independent sources. */
-  launchBlock: null,
+  /* The block $BLUEPILL launched at, from the platform's /api/coins
+     block_number. The chain scan starts here; nothing relevant happened
+     before it.
+
+     ⚠ ONE SOURCE, not the usual two. The corroborating check is a timestamp
+     search for the pool's own pairCreatedAt, and DexScreener has no pair for
+     this token yet — it has not traded (swap_count 0), so there is no
+     pairCreatedAt to search for. Re-confirm once it trades. A launch block
+     that is too EARLY only costs scan time; too late and the backfill
+     silently misses history, so this errs on the platform's figure rather
+     than on a guess. */
+  launchBlock: 51805150,
 
   /* How the reward token is recognised among everything that touches the
      distributor. Matched case-insensitively AND as a substring against each
      token's own symbol(), because a platform's wrapper decorates the ticker it
      wraps: $BOX's answered "AMZNc", and an exact comparison missed it.
 
-     Null on purpose. With this null the configured ADDRESS is used instead —
-     never a ticker inherited from the token this repo was copied from, and
-     never one read off the artwork. Set it to whatever symbol() actually
-     returns once discovery reports it. */
-  rewardTokenSymbol: null,
+     "PFEc" is what symbol() actually returns — read off the contract, not
+     copied off the artwork, which says $PFE. The substring match means "PFE"
+     would also hit it, but the exact reading is written down because that is
+     the whole point of having read it. */
+  rewardTokenSymbol: 'PFEc',
 
   /* Holders' share of what leaves the rewards index — the rest is the
      protocol's cut, so the outflow is NOT the distributed figure on its own.
-     ⚠ UNVERIFIED FOR THIS TOKEN. 0.9 is the platform's usual split and what
-     $BOX's, $BLUE's and $PURR's panels all read, but it is a PER-TOKEN setting
-     and it is the one multiplier standing between the measured outflow and the
-     figure on the tile. scripts/panel-probe.mjs reads THIS token's own
-     Stockify panel for it; until that agrees, the distributed figure is
-     provisional and must not be announced. On $BLUE the panel and the indexer
-     agreed to five decimal places — that is the bar. */
+     ⚠⚠ UNVERIFIED, AND THERE IS NOW EVIDENCE AGAINST 0.9. It is the split
+     $BOX's, $BLUE's and $PURR's panels all read — but this token's own
+     /api/coins entry carries `platform_bps: 3000`, which is 30% in basis
+     points. If that is the protocol's cut of the reward flow, holders get
+     0.70 and this constant overstates every payout by about 28%.
+
+     It is left at 0.9 rather than swapped for a second guess, because both
+     are guesses and the tile reads 0 either way right now: the token has not
+     traded, so the measured outflow is zero and 0.9 × 0 = 0.7 × 0.
+
+     RESOLVE THIS BEFORE ANY PAYOUT FIGURE IS ANNOUNCED. scripts/panel-probe.mjs
+     reads THIS token's own Stockify panel and prints it beside what the site
+     publishes; on $BLUE those agreed to five decimal places, which is the bar.
+     Better still, set PROTOCOL_ADDRESS in worker/src/config.js if the
+     protocol's address turns up — the cut is then subtracted exactly and
+     survives the percentage changing. */
   holderShare: 0.9,
 
   /* Related contracts.
@@ -88,17 +104,34 @@ window.SITE_CONFIG = {
      correct, if slower. That is the safe default, so leave it null unless you
      are certain. */
   contracts: {
-    pool: null,
+    /* The trading pair, from the platform's /api/coins entry for this token.
+       Venue is aerodrome-slipstream, not the Uniswap v3 the siblings used.
+
+       ⚠ SINGLE-SOURCED. Normally this is only named once DexScreener
+       corroborates it, because DexScreener is asked about THIS pool BEFORE
+       it searches by token address — so a wrong value here reports another
+       token's market cap no matter what contractAddress says. DexScreener
+       has no pair for this token yet, so there is nothing to corroborate
+       against; the platform's own record for this token_id is the best
+       source available. Re-confirm after the first trade. */
+    pool: '0xa25f096d486925cebe6e80c83db9647a1a5904b7',
     rewardPool: null,
-    /* Where trading fees accrue. SHARED BY EVERY TOKEN on the platform — the
-       same address on all three siblings — so it is NEVER summed: doing that
-       reports the whole platform's fees as this token's. Recorded only so it
-       can be excluded from the holder count. */
-    feeLocker: null,
+    /* Where trading fees accrue, from /api/coins. NEVER summed: a locker is
+       shared, and summing it reports other tokens' fees as this one's.
+       Recorded only so it can be excluded from the holder count.
+
+       Worth noting: this is NOT the address the three siblings share
+       (0x71D1D363…). This token launched on a different venue, so the
+       platform gave it a different locker — which is a good reminder that
+       "the locker is platform-wide" is an observation about those three,
+       not a law. Either way it is excluded, never added up. */
+    feeLocker: '0x43555104f569d17026037e5637691b95c79fd03a',
     /* The distributor holders are paid from — per token, and the only one of
        these that is this token's alone. Not derivable on chain: it is a
-       routing decision, and the platform's /api/fee-routing reports it. */
-    rewardsIndex: null,
+       routing decision, and /api/fee-routing reports this token's routing as
+       "rewards" with this index. It is also the `fee_owner` on the /api/coins
+       entry, which is two of the platform's own records agreeing. */
+    rewardsIndex: '0x64cDA502645E0f6eaD8d03d46beb6E04A5b99F0E',
   },
 
   /* ---- Links ---------------------------------------------------------- */
@@ -110,10 +143,15 @@ window.SITE_CONFIG = {
     chart: null,
 
     // The two lockups in the footer panel — both hrefs are written from here.
-    // launchedIn is the platform's page for THIS token; rewardsBy is this
-    // token's own Stockify index, which is still to come from the owner.
+    // launchedIn is the platform's page for THIS token.
+    //
+    // rewardsBy is DERIVED, not supplied: Stockify indexes live at
+    // /indices/<rewardsIndex lowercased>, which is the shape every sibling's
+    // panel link takes. The index below is the one /api/fee-routing named for
+    // this token. ⚠ Confirm it resolves before announcing — it is the one
+    // link on this page built by pattern rather than read from a source.
     launchedIn: 'https://www.thestonks.exchange/token/0x9AA5dd27a7681E103880B159A358AC18FD04576A',
-    rewardsBy: null,
+    rewardsBy: 'https://www.stockify.finance/indices/0x64cda502645e0f6ead8d03d46beb6e04a5b99f0e',
   },
 
   /* ======================================================================

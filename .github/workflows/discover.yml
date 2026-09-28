@@ -30,20 +30,23 @@ jobs:
           node-version: '24'
       - name: Ask the network
         env:
-          # TEMPORARY: pointed at the REWARD token, not $BLUEPILL.
+          # Reverted to the default after run #2 pointed this at the reward
+          # token for one pass. That pass is why KEX_DECIMALS is 8 rather
+          # than 18: the reward token could not be reached the usual way,
+          # because it is found as the other side of the deepest DexScreener
+          # pair and $BLUEPILL has no pair yet (swap_count 0, it has not
+          # traded). Reading it directly returned:
           #
-          # The first run could not read the reward token at all. It finds it
-          # as the other side of the deepest DexScreener pair, and DexScreener
-          # has no pair for this token yet — swap_count is 0, it has not
-          # traded. So "reward (none)", and its symbol()/name()/decimals()
-          # went unread.
+          #   symbol() "PFEc"   name() "Pfizer Inc"   decimals() 8
           #
-          # The platform's /api/coins says quote_decimals 8. That is exactly
-          # the $BOX shape — an 18-decimal token whose reward token is 8 — and
-          # assuming 18 there published 25.244695737 as 2.5244695737e-9. So it
-          # gets READ off the contract rather than taken from the API, which
-          # is what this run is for. Revert to ${{ inputs.token }} afterwards.
-          TOKEN: '0xb20000000000000000000018fe7ec7d6dfeeb528'
+          # "PFEc", not "PFE" — the platform's wrapper decorates the ticker
+          # it wraps, exactly as $BOX's answered "AMZNc". And 8 decimals
+          # against the token's own 18, which is the $BOX scale trap: sharing
+          # one constant there published 25.244695737 as 2.5244695737e-9.
+          #
+          # Point TOKEN at another address the same way if a second reading
+          # is ever needed; it is a one-run change, not a permanent setting.
+          TOKEN: ${{ inputs.token }}
           RPC_URL: ${{ secrets.RPC_URL }}
           # Addresses to test as the distributor: the reward token should flow
           # both in and out of the real one. Comma-separated.

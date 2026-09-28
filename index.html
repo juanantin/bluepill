@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Bluepill — hold $BLUEPILL, earn $PFE</title>
-<meta name="description" content="Bluepill 50mg. 1,000,000,000 $BLUEPILL on Base. Every trade routes fees to the rewards index — hold $BLUEPILL and earn $PFE. Not affiliated with Pfizer Inc.">
+<title>Bluepill — hold $BLUEPILL, earn $PFEc</title>
+<meta name="description" content="Bluepill 50mg. 1,000,000,000 $BLUEPILL on Base. Every trade routes fees to the rewards index — hold $BLUEPILL and earn $PFEc, the platform's tokenized reward asset. Not affiliated with Pfizer Inc.">
 
 <!-- The social card. Three things here are not stylistic:
 
@@ -30,7 +30,7 @@
 <meta property="og:site_name" content="Bluepill">
 <meta property="og:url" content="https://REPLACE-WITH-DEPLOYMENT-URL/">
 <meta property="og:title" content="Bluepill — $BLUEPILL">
-<meta property="og:description" content="Hold $BLUEPILL, earn $PFE. 1B total supply on Base chain.">
+<meta property="og:description" content="Hold $BLUEPILL, earn $PFEc. 1B total supply on Base chain.">
 <meta property="og:image" content="https://REPLACE-WITH-DEPLOYMENT-URL/images/social.jpg">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
@@ -52,10 +52,10 @@
 
      The ?v= below is what makes a browser let go of the icon it has cached;
      node scripts/stamp.mjs moves all of them together. -->
-<link rel="icon" href="favicon.ico?v=2" sizes="any">
-<link rel="icon" type="image/png" href="images/favicon.png?v=2">
-<link rel="apple-touch-icon" href="images/apple-touch-icon.png?v=2">
-<link rel="manifest" href="site.webmanifest?v=2">
+<link rel="icon" href="favicon.ico?v=3" sizes="any">
+<link rel="icon" type="image/png" href="images/favicon.png?v=3">
+<link rel="apple-touch-icon" href="images/apple-touch-icon.png?v=3">
+<link rel="manifest" href="site.webmanifest?v=3">
 
 <!-- One face, five weights. 800 is not decoration: the Bluepill wordmark and
      the figures are set in it, and Inter's 700 is visibly lighter than the
@@ -75,7 +75,7 @@
       media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"></noscript>
 
-<link rel="stylesheet" href="assets/css/styles.css?v=2">
+<link rel="stylesheet" href="assets/css/styles.css?v=3">
 </head>
 <body>
 
@@ -153,12 +153,12 @@
      is what the letterboxing shows at ratios the photograph does not fill.
      Resample --hero-ground from the artwork's own edge when it arrives. -->
 <header class="hero">
-  <h1 class="sr-only">Bluepill — hold $BLUEPILL on Base and earn $PFE rewards from trading fees.</h1>
+  <h1 class="sr-only">Bluepill — hold $BLUEPILL on Base and earn $PFEc rewards from trading fees.</h1>
 
   <div class="hero__frame">
     <picture>
-      <source srcset="images/hero.webp?v=2" type="image/webp">
-      <img class="hero__img" src="images/hero.jpg?v=2" alt=""
+      <source srcset="images/hero.webp?v=3" type="image/webp">
+      <img class="hero__img" src="images/hero.jpg?v=3" alt=""
            width="2048" height="1152" fetchpriority="high" decoding="async">
     </picture>
   </div>
@@ -202,7 +202,7 @@
         </div>
         <div class="ingredients__row">
           <dt>Holder rewards</dt>
-          <dd>$PFE distributed</dd>
+          <dd>$PFEc distributed</dd>
         </div>
         <div class="ingredients__row">
           <dt>Blockchain</dt>
@@ -220,9 +220,10 @@
            why the ticker is read off chain and described rather than
            inherited from the branding. -->
       <p class="label-card__note">
-        $PFE here is the platform's tokenized reward asset on Base. It is a
-        token, not Pfizer stock — it carries no equity, dividend, voting or
-        shareholder rights of any kind.
+        Rewards are paid in <b>$PFEc</b> — the platform's tokenized reward
+        asset on Base, whose contract reports <code>symbol()</code> as
+        “PFEc”. It is a token, not Pfizer stock, and carries no equity,
+        dividend, voting or shareholder rights of any kind.
       </p>
 
     </article>
@@ -250,11 +251,11 @@
           </span>
           <div class="stat__body">
             <h3 class="stat__label">Total fees collected</h3>
-            <p class="stat__value"><span data-value="fees"><span class="dots" role="img" aria-label="Loading"><i></i><i></i><i></i></span></span><span class="stat__unit" data-unit-for="fees" hidden>PFE</span></p>
+            <p class="stat__value"><span data-value="fees"><span class="dots" role="img" aria-label="Loading"><i></i><i></i><i></i></span></span><span class="stat__unit" data-unit-for="fees" hidden>PFEc</span></p>
           </div>
         </article>
 
-        <!-- Total $PFE distributed, with the dollar figure underneath: a bare
+        <!-- Total $PFEc distributed, with the dollar figure underneath: a bare
              reward-token amount means nothing without knowing what a unit is
              worth. -->
         <article class="stat" data-metric="distributed">
@@ -267,7 +268,7 @@
             </svg>
           </span>
           <div class="stat__body">
-            <h3 class="stat__label">Total $PFE distributed</h3>
+            <h3 class="stat__label">Total $PFEc distributed</h3>
             <p class="stat__value"><span data-value="distributed"><span class="dots" role="img" aria-label="Loading"><i></i><i></i><i></i></span></span></p>
             <p class="stat__sub" data-chip-for="distributedUsd">(<b data-value="distributedUsd"><span class="dots" role="img" aria-label="Loading"><i></i><i></i><i></i></span></b>)</p>
           </div>
@@ -395,7 +396,7 @@
 
     <p class="foot__fine">
       Not financial advice. Crypto assets are volatile — do your own research.
-      $PFE rewards are paid in a tokenized asset on Base and confer no equity,
+      $PFEc rewards are paid in a tokenized asset on Base and confer no equity,
       dividend or shareholder rights.
     </p>
 
@@ -457,7 +458,7 @@
 <!-- ?v= is the cache buster: run `node scripts/stamp.mjs` on every deploy,
      which moves every ?v= here and `version` in config.js together. Skip it
      and a CDN keeps serving the previous config.js and app.js. -->
-<script src="config.js?v=2"></script>
-<script src="assets/js/app.js?v=2"></script>
+<script src="config.js?v=3"></script>
+<script src="assets/js/app.js?v=3"></script>
 </body>
 </html>

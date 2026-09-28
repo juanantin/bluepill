@@ -30,13 +30,19 @@ const E18 = 10n ** 18n;
    a wrong scale — it agrees with whatever it is given, goes green, and leaves
    every reward figure on the site out by a power of ten.
 
-   For $BLUE the reward token is $STONKEX, whose decimals() returns 18 —
+   For $BLUEPILL the reward token is PFEc, whose decimals() returns 8 —
    verified on chain by the discovery run, not assumed from it being the usual
-   answer. On $BOX this constant was 8 (AMZNc), and the 18 that looked obvious
-   there published 25.244695737 as 2.5e-9. So: when this repo is pointed at a
-   new token, this line changes to that token's reading, and this test failing
-   after a config change is the whole point of it. */
-const EKEX = 10n ** 18n;
+   answer. On $BOX this constant was also 8 (AMZNc), and the 18 that looked
+   obvious there published 25.244695737 as 2.5e-9. So: when this repo is
+   pointed at a new token, this line changes to that token's reading, and this
+   test failing after a config change is the whole point of it.
+
+   It did exactly that here. Carried over from $PURR at 18, this suite went
+   red the moment KEX_DECIMALS became 8, asserting 7.2 against 72000000000 —
+   the 10^10 gap between the two scales, caught by a test rather than by
+   somebody noticing a reward tile with ten extra digits. Do NOT resolve that
+   by importing KEX_DECIMALS here: the independence is the mechanism. */
+const EKEX = 10n ** 8n;
 
 function fakeKV() {
   const store = new Map();
