@@ -154,20 +154,80 @@ console.log('\n--- debug panel -----------------------------------------');
 console.log((await page.$eval('#dash-debug', (n) => n.textContent).catch(() => '  (none)')));
 
 if (process.env.SEED_ZEROS) {
-  const bad = await page.$$eval('[data-value]', (ns) => ns
+  /* A rendered 0 is only a fault if the truth is NOT zero.
+
+     This check used to fail on any zero at all, which was right for every
+     token it had run against — and wrong here. $BLUEPILL has not traded, so
+     the indexer's honest measurement of fees and distribution IS zero, and a
+     tile correctly showing 0 is indistinguishable by eye from a seeded zero
+     that survived. Failing on it blocked the build over the page being
+     right.
+
+     So the published figures decide. A tile showing 0 is:
+       · fine     when data/rewards.json also says 0 — both agree
+       · a FAULT  when the file has a non-zero figure for it (the seed won)
+       · a FAULT  when the file has nothing for it (nothing published a zero,
+                  so the zero can only have come from the seed)
+
+     The original bug is still caught: it was a remembered zero owning a
+     field whose true value was non-zero, which is case two. */
+  const published = JSON.parse(await readFile(path.join(ROOT, 'data/rewards.json'), 'utf8'));
+  const PUBLISHED_FOR = {
+    fees: ['totalFeesCollected', 'totalFeesTokens'],
+    distributed: ['totalDistributed'],
+    distributedUsd: ['totalDistributedUsd'],
+    holders: ['holders'],
+  };
+  const publishedZero = (k) => PUBLISHED_FOR[k].some((f) => published[f] === 0);
+
+  const zeros = await page.$$eval('[data-value]', (ns) => ns
     .filter((n) => ['fees', 'distributedUsd', 'distributed', 'holders'].includes(n.dataset.value))
     .filter((n) => /^\$?0$|^0\.00$/.test(n.textContent.trim()))
     .map((n) => n.dataset.value));
+
+  const bad = zeros.filter((k) => !publishedZero(k));
+  const agreed = zeros.filter(publishedZero);
+
   if (bad.length) {
     console.log(`FAIL: seeded zeros survived on ${bad.join(', ')}`);
+    console.log('  (data/rewards.json does not publish a zero for these, so the'
+              + ' zero on screen came from the seeded cache)');
     await browser.close(); server.close();
     process.exit(1);
   }
-  /* Says only what was checked. The scan does not always land inside the
-     window on a loaded runner, and when it does not the tiles read "—" —
-     which passes, correctly, because a waiting tile is the intended
-     behaviour. Claiming "replaced by a live figure" would overstate it. */
-  console.log('PASS: no seeded zero is on screen (tiles show a live figure or wait)');
+
+  /* Excusing a zero is only safe if something PROVES the published figures
+     reached the page at all — otherwise a total failure to merge would look
+     identical to agreement. A non-zero figure rendering correctly is that
+     proof. When every published figure is itself zero or null there is no
+     such witness, and this pass says so rather than claiming more than it
+     tested. */
+  const witness = Object.entries(PUBLISHED_FOR).find(([, fields]) =>
+    fields.some((f) => typeof published[f] === 'number' && published[f] !== 0));
+
+  if (agreed.length) {
+    console.log(`note: ${agreed.join(', ')} render 0, and data/rewards.json`
+              + ' publishes 0 for them — agreement, not a surviving seed');
+  }
+  if (witness) {
+    const [metric, fields] = witness;
+    const field = fields.find((f) => typeof published[f] === 'number' && published[f] !== 0);
+    const shown = await page.$eval(`[data-value="${metric}"]`,
+      (n) => n.textContent.trim()).catch(() => '(absent)');
+    if (!shown || shown === '0' || shown === '—') {
+      console.log(`FAIL: ${field} is ${published[field]} but the ${metric} tile shows "${shown}"`);
+      await browser.close(); server.close();
+      process.exit(1);
+    }
+    console.log(`PASS: no seeded zero survived, and ${metric} shows "${shown}"`
+              + ` against a published ${field} of ${published[field]} — the`
+              + ' published figures demonstrably reached the page');
+  } else {
+    console.log('PASS (WEAK): no seeded zero is on screen, but every published'
+              + ' figure is itself zero or null, so nothing here proves the'
+              + ' merge ran. This regains its teeth the moment the token'
+              + ' trades and a real figure appears.');
+  }
 }
 
 /* On mobile the question is not "is a zero showing" but "did anything arrive".

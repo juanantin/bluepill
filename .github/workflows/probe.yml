@@ -42,27 +42,53 @@ jobs:
       # The other half of the question: not what the chain holds, but what the
       # page does with it. Runs the committed site in a real browser, against
       # the real network, and prints the tiles.
+      #
+      # Every pass below tees to a file and keeps its real exit code through
+      # PIPESTATUS (a bare `| tee` reports tee's success and turns a failed
+      # probe green). The last step in the job reprints all of them. Without
+      # that, a failure here is unreadable in practice: job logs are served
+      # as a TAIL, and the steps after these print two whole scraped web
+      # pages, so anything from up here is long gone. Three separate log
+      # pulls failed to reach a one-line failure message before this existed.
+      #
+      # `if: always()` on the passes after the first, because they are
+      # INDEPENDENT checks. Left to the default, the first failure skipped
+      # both the phone pass and the chain probe, so each run reported one
+      # problem and hid the rest — a cycle per fault.
       - name: Probe the page
+        id: page
         run: |
+          set -uo pipefail
           npm i --no-save playwright@1.49.1
           npx playwright install --with-deps chromium
-          node scripts/page-probe.mjs
+          node scripts/page-probe.mjs 2>&1 | tee /tmp/probe-page.log
+          exit "${PIPESTATUS[0]}"
 
       # The same page, but starting from a browser that already banked zeros —
       # the state a returning visitor is in, and the one a fresh run cannot
       # reach. Fails the build if a seeded zero is still on screen at the end.
       - name: Probe the page as a returning visitor
+        id: returning
+        if: always()
         env:
           SEED_ZEROS: '1'
-        run: node scripts/page-probe.mjs
+        run: |
+          set -uo pipefail
+          node scripts/page-probe.mjs 2>&1 | tee /tmp/probe-returning.log
+          exit "${PIPESTATUS[0]}"
 
       # A phone, cold. The report that prompted this was "showing — on
       # mobile", and a desktop run cannot see it: the difference is an empty
       # cache and a tab nobody keeps in front for a minute.
       - name: Probe the page as a phone
+        id: phone
+        if: always()
         env:
           MOBILE: '1'
-        run: node scripts/page-probe.mjs
+        run: |
+          set -uo pipefail
+          node scripts/page-probe.mjs 2>&1 | tee /tmp/probe-phone.log
+          exit "${PIPESTATUS[0]}"
 
       # Reading these logs through the API returns only the TAIL of the job,
       # and the browser steps are thousands of lines of CORS and retry noise —
@@ -70,6 +96,7 @@ jobs:
       # it. The two steps whose output is meant to be quoted go last.
       - name: Probe the chain
         id: chain
+        if: always()
         env:
           RPC_URL: ${{ inputs.rpc_url }}
           START_BLOCK: ${{ inputs.start_block }}
@@ -163,14 +190,19 @@ jobs:
       #
       # if: always() so it still runs when an earlier step failed; that is
       # the case it exists for.
-      - name: What the chain probe said
+      - name: What every pass said
         if: always()
         run: |
           set -uo pipefail
-          echo "=== chain probe: ${{ steps.chain.outcome }} ==================="
-          if [ -f /tmp/chain-probe.log ]; then
-            tail -40 /tmp/chain-probe.log
-          else
-            echo "(the step did not get far enough to write a log)"
-          fi
+          summarise () {
+            echo ""
+            echo "=== $1: $2 ==============================================="
+            if [ -f "$3" ]; then tail -"$4" "$3"
+            else echo "(did not get far enough to write a log)"; fi
+          }
+          summarise "page"             "${{ steps.page.outcome }}"      /tmp/probe-page.log      12
+          summarise "returning visitor" "${{ steps.returning.outcome }}" /tmp/probe-returning.log 12
+          summarise "phone"            "${{ steps.phone.outcome }}"     /tmp/probe-phone.log     12
+          summarise "chain"            "${{ steps.chain.outcome }}"     /tmp/chain-probe.log     40
+          echo ""
           echo "==============================================================="
