@@ -67,12 +67,13 @@ html { -webkit-text-size-adjust: 100%; }
 
 body {
   margin: 0;
-  /* Flat colour behind everything below the hero. There was a photographic
-     pill field here — first pinned to the viewport, then scrolling — and the
-     owner asked for it gone, so the ground is the blue it was sampled from
-     and nothing else. The original is kept in images/src/ and
-     images/src/README.md has the one command that regenerates the served
-     files if it is ever wanted back. */
+  /* position: relative is load-bearing, not tidiness: it makes <body> the
+     containing block for .pillfield, which is what lets that absolutely
+     positioned layer stretch across the whole document instead of one
+     viewport. Remove it and the pill field stops at the fold. */
+  position: relative;
+  /* Colour only — the fallback under the photograph and what shows before it
+     loads. The picture itself is on .pillfield below. */
   background: var(--page);
   color: var(--ink);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
@@ -108,12 +109,30 @@ a { color: inherit; text-decoration: none; }
   padding-inline: var(--gutter);
 }
 
-/* The pill field that used to sit here is gone at the owner's request — it
-   was a photographic backdrop behind everything under the hero, tried both
-   pinned to the viewport and scrolling. The ground is now plain --page, set
-   on <body>. images/src/bluepill_bg.png is kept and images/src/README.md
-   carries the command that regenerates the served files, so bringing it
-   back is one command and one rule, not a hunt for the original. */
+/* ---------- The pill field -------------------------------------------- */
+/* The supplied pill photograph, behind everything below the hero, with the
+   white panels floating on it as the mockup has them.
+
+   It SCROLLS WITH THE PAGE. It was pinned to the viewport first — that was
+   the parallax — and the owner did not want the background holding still
+   while the content slid over it. `absolute` rather than `fixed` is the
+   whole of that: with <body> as the containing block it stretches to the
+   full document and travels with everything else.
+
+   (It was then removed entirely for a while and has now been asked back.
+   Both the original and the regeneration command live in images/src/, which
+   is what made restoring it a one-liner rather than a hunt.)
+
+   aria-hidden and empty: it is scenery, and a screen reader announcing it
+   would be announcing nothing. */
+.pillfield {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--page) center / cover no-repeat;
+  background-image: image-set(url('../../images/bg.webp?v=22') type('image/webp'),
+                              url('../../images/bg.jpg?v=22') type('image/jpeg'));
+}
 
 /* ---------- Top bar --------------------------------------------------- */
 /* Sits OVER the hero rather than above it, so the page opens on the artwork.
@@ -128,25 +147,15 @@ a { color: inherit; text-decoration: none; }
   padding-block: 18px;
 }
 
-/* A scrim under the chrome, and it is not decoration. The bar sits over the
-   carton's WHITE face, so white buttons on white card rendered as three
-   ghost outlines — the CA button, the one control nobody can guess, worst of
-   all. A first render caught it. The gradient is strongest exactly where the
-   type is and gone by the bottom of the bar, so the photograph is untouched
-   everywhere it matters.
-   pointer-events: none so it never eats a click meant for a button. */
-.topbar::before {
-  content: '';
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: 190%;
-  background: linear-gradient(to bottom,
-              rgba(6, 30, 84, .58) 0%,
-              rgba(6, 30, 84, .30) 45%,
-              rgba(6, 30, 84, 0) 100%);
-  pointer-events: none;
-  z-index: -1;
-}
+/* No scrim. The bar was carrying a dark gradient so white chrome would read
+   over the carton's white face; the owner wants it transparent and blended,
+   so the gradient is gone and the CONTRAST MOVED INTO THE BUTTONS instead —
+   see .btn below, which is now dark glass rather than light.
+
+   That swap is the whole trick. A transparent bar cannot be transparent AND
+   guarantee legibility with light-on-light controls; making the controls
+   dark lets the bar disappear completely while the buttons stay readable on
+   the white carton, the blue 50 mg badge and the pills alike. */
 
 .topbar__rail {
   width: 100%;
@@ -159,33 +168,17 @@ a { color: inherit; text-decoration: none; }
   gap: 12px;
 }
 
-.brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  color: #fff;
-}
-
-.brand__mark {
-  width: 21px; height: 21px;
-  border-radius: 5px;
-  background: #fff;
-  flex: none;
-}
-
-.brand__word {
-  font-size: 25px;
-  font-weight: 700;
-  letter-spacing: -.02em;
-}
-
 /* ---------- Action buttons -------------------------------------------- */
+/* The Base lockup that used to sit opposite these is gone, so the row is on
+   its own and pushed to the right end of the rail. */
 
 .actions {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 10px;
   min-width: 0;
+  margin-left: auto;
 }
 
 .btn {
@@ -195,11 +188,17 @@ a { color: inherit; text-decoration: none; }
   gap: 8px;
   height: 42px;
   padding-inline: 18px;
-  border: 1.5px solid rgba(255, 255, 255, .55);
+  /* DARK glass, not light. The bar behind these is fully transparent now,
+     so the buttons carry their own contrast — and they have to work over
+     three different grounds within a few hundred pixels: the carton's white
+     face, the bright blue 50 mg badge, and the out-of-focus pills. A
+     translucent dark fill with white content reads on all three; the light
+     fill this replaced was invisible on the first of them. */
+  border: 1.5px solid rgba(255, 255, 255, .28);
   border-radius: 999px;
-  background: rgba(255, 255, 255, .14);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
+  background: rgba(8, 28, 74, .42);
+  -webkit-backdrop-filter: blur(10px) saturate(1.1);
+  backdrop-filter: blur(10px) saturate(1.1);
   color: #fff;
   font: inherit;
   font-size: 15px;
@@ -209,7 +208,11 @@ a { color: inherit; text-decoration: none; }
   transition: background .18s ease, border-color .18s ease, translate .18s ease;
 }
 
-.btn:hover { background: rgba(255, 255, 255, .26); border-color: #fff; translate: 0 -1px; }
+.btn:hover {
+  background: rgba(8, 28, 74, .62);
+  border-color: rgba(255, 255, 255, .5);
+  translate: 0 -1px;
+}
 .btn:active { translate: 0 0; }
 
 /* X and the chart carry no painted label, so they are round rather than a
@@ -715,11 +718,8 @@ a { color: inherit; text-decoration: none; }
   .topbar { padding-block: 13px; }
   .topbar__rail { gap: 8px; }
 
-  .brand__word { font-size: 21px; }
-  .brand__mark { width: 18px; height: 18px; }
-
-  /* The three actions stay on one line, shedding padding and then their
-     labels rather than wrapping under the Base mark. */
+  /* The three actions stay on one line, shedding padding and then the CA
+     label rather than wrapping. */
   .btn { height: 37px; padding-inline: 12px; font-size: 13.5px; gap: 6px; }
   /* Stays square as it shrinks — a 37px circle, not a 12px-padded oval. */
   .btn--icon { width: 37px; padding-inline: 0; }

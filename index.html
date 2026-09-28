@@ -51,10 +51,10 @@
 
      The ?v= below is what makes a browser let go of the icon it has cached;
      node scripts/stamp.mjs moves all of them together. -->
-<link rel="icon" href="favicon.ico?v=20" sizes="any">
-<link rel="icon" type="image/png" href="images/favicon.png?v=20">
-<link rel="apple-touch-icon" href="images/apple-touch-icon.png?v=20">
-<link rel="manifest" href="site.webmanifest?v=20">
+<link rel="icon" href="favicon.ico?v=22" sizes="any">
+<link rel="icon" type="image/png" href="images/favicon.png?v=22">
+<link rel="apple-touch-icon" href="images/apple-touch-icon.png?v=22">
+<link rel="manifest" href="site.webmanifest?v=22">
 
 <!-- One face, five weights. 800 is not decoration: the Bluepill wordmark and
      the figures are set in it, and Inter's 700 is visibly lighter than the
@@ -74,21 +74,26 @@
       media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"></noscript>
 
-<link rel="stylesheet" href="assets/css/styles.css?v=20">
+<link rel="stylesheet" href="assets/css/styles.css?v=22">
 </head>
 <body>
 
+<!-- The pill field: the supplied photograph behind everything below the
+     hero, scrolling with the page rather than pinned. Empty and aria-hidden
+     because it is scenery — there is nothing in it to announce. -->
+<div class="pillfield" aria-hidden="true"></div>
+
 <!-- ===================== TOP BAR ===================== -->
-<!-- Overlays the hero artwork. The Base lockup sits left, the three actions
-     right, exactly as the mockup has them. The bar is the ONLY chrome on the
-     page: there is no nav, because there is nowhere else to go. -->
+<!-- Overlays the hero artwork, transparent, with the three actions at the
+     right. The bar is the ONLY chrome on the page: there is no nav, because
+     there is nowhere else to go.
+     The Base lockup that used to sit at the left is gone at the owner's
+     request. It was duplicating the artwork anyway — the carton carries a
+     Base mark on its side panel and every pill in the photograph is stamped
+     with another, so drawing a third put the same logo on the page three
+     times. -->
 <div class="topbar">
   <div class="topbar__rail">
-
-    <a class="brand" href="https://www.base.org/" target="_blank" rel="noopener noreferrer">
-      <span class="brand__mark" aria-hidden="true"></span>
-      <span class="brand__word">base</span>
-    </a>
 
     <!-- Pill buttons. X and the chart are the MARK ALONE — no painted label.
          The names do not disappear with them, they stop being painted: each
@@ -160,14 +165,14 @@
 
   <div class="hero__frame">
     <picture>
-      <source srcset="images/hero.webp?v=20" type="image/webp">
+      <source srcset="images/hero.webp?v=22" type="image/webp">
       <!-- 1536x1024 as delivered, and .hero__frame is set to that same 3:2,
            so nothing is cropped at any width. alt="" because the artwork's
            own wording is already the <h1> above — a screen reader that
            described it too would read the pitch twice.
            fetchpriority=high: it is the largest paint and the only thing
            above the fold. -->
-      <img class="hero__img" src="images/hero.jpg?v=20" alt=""
+      <img class="hero__img" src="images/hero.jpg?v=22" alt=""
            width="1536" height="1024" fetchpriority="high" decoding="async">
     </picture>
   </div>
@@ -214,10 +219,6 @@
           <dd>$PFEc distributed</dd>
         </div>
         <div class="ingredients__row">
-          <dt>Minimum to earn</dt>
-          <dd>10,000 $BLUEPILL</dd>
-        </div>
-        <div class="ingredients__row">
           <dt>Blockchain</dt>
           <dd>Base chain</dd>
         </div>
@@ -226,30 +227,22 @@
       <h3 class="label-card__rubric">Inactive ingredients</h3>
       <p class="label-card__inactive">Memes, conviction, higher lows, stronger holders.</p>
 
-      <!-- Rule 4 of the build brief, and the one line on this page that is
-           load-bearing rather than funny: the platform pays in a TOKENIZED
-           WRAPPER, not in the listed equity. On the $BOX sibling the
-           wrapper's own symbol() read "AMZNc" rather than "AMZN", which is
-           why the ticker is read off chain and described rather than
-           inherited from the branding. -->
+      <!-- Both notes cut to about a third at the owner's request. What could
+           not go is rule 4 of the build brief: the platform pays in a
+           TOKENIZED WRAPPER, not the listed equity — $BOX's read "AMZNc",
+           not "AMZN" — and the 10,000-coin floor, because a holder with
+           9,000 earns nothing and learning that from a dashboard that never
+           said so is the surprise this site exists to avoid. Everything
+           around those two facts is gone; the facts are not. -->
       <p class="label-card__note">
-        Rewards are paid in <b>$PFEc</b> — the platform's tokenized reward
-        asset on Base, whose contract reports <code>symbol()</code> as
-        “PFEc”. It is a token, not Pfizer stock, and carries no equity,
-        dividend, voting or shareholder rights of any kind.
+        <b>$PFEc</b> is the platform's tokenized reward asset on Base — a
+        token, not Pfizer stock. No equity, dividend or voting rights.
       </p>
 
-      <!-- Straight from this token's own Stockify panel, read by
-           scripts/panel-probe.mjs rather than assumed: the 90/10 split, the
-           round cadence, and the 10,000-coin floor. The floor in particular
-           belongs on the page — a holder with 9,000 coins earns nothing, and
-           finding that out from a dashboard that never mentioned it is the
-           kind of surprise the whole site exists to avoid. -->
       <p class="label-card__note">
-        Payouts run in rounds and are pro-rata on the balance you hold when a
-        round runs — there is nothing to claim. Holders under 10,000 coins are
-        skipped, and their slice stays with everyone above the line. Of each
-        round, <b>90% goes to holders</b> and 10% to the protocol.
+        Paid in rounds, pro-rata on your balance at the time — nothing to
+        claim. Wallets under 10,000 coins are skipped.
+        <b>90% to holders</b>, 10% protocol.
       </p>
 
     </article>
@@ -489,7 +482,7 @@
 <!-- ?v= is the cache buster: run `node scripts/stamp.mjs` on every deploy,
      which moves every ?v= here and `version` in config.js together. Skip it
      and a CDN keeps serving the previous config.js and app.js. -->
-<script src="config.js?v=20"></script>
-<script src="assets/js/app.js?v=20"></script>
+<script src="config.js?v=22"></script>
+<script src="assets/js/app.js?v=22"></script>
 </body>
 </html>
