@@ -69,10 +69,24 @@ jobs:
       # so anything printed first is unreadable by the time anyone asks for
       # it. The two steps whose output is meant to be quoted go last.
       - name: Probe the chain
+        id: chain
         env:
           RPC_URL: ${{ inputs.rpc_url }}
           START_BLOCK: ${{ inputs.start_block }}
-        run: node scripts/probe.mjs
+        # Teed, because this step's failure message could not be read. Job
+        # logs come back as a TAIL, and the two steps after this one print a
+        # scrape of two whole web pages between here and the end — several
+        # hundred lines. This step failed on the first real run and the one
+        # line saying why was already off the top by the time the tail was
+        # fetched; three separate log pulls never reached it.
+        #
+        # PIPESTATUS keeps the real exit code: `| tee` would otherwise report
+        # tee's success and turn a failed probe green, which is worse than
+        # the problem being fixed.
+        run: |
+          set -uo pipefail
+          node scripts/probe.mjs 2>&1 | tee /tmp/chain-probe.log
+          exit "${PIPESTATUS[0]}"
 
       # Last of all: what the platform itself publishes, printed beside what
       # this site publishes. A chain scan cannot check its own assumptions —
@@ -140,3 +154,23 @@ jobs:
             echo "  The probe below therefore describes the PREVIOUS deploy."
           fi
           node scripts/page-probe.mjs
+
+      # ACTUALLY last. Everything above prints hundreds of lines — two page
+      # scrapes and a browser pass — and the API serves only the tail, so a
+      # failure in the middle of the job is invisible in practice. This
+      # re-prints the chain probe's own ending where the tail will always
+      # reach it, and says plainly whether it passed.
+      #
+      # if: always() so it still runs when an earlier step failed; that is
+      # the case it exists for.
+      - name: What the chain probe said
+        if: always()
+        run: |
+          set -uo pipefail
+          echo "=== chain probe: ${{ steps.chain.outcome }} ==================="
+          if [ -f /tmp/chain-probe.log ]; then
+            tail -40 /tmp/chain-probe.log
+          else
+            echo "(the step did not get far enough to write a log)"
+          fi
+          echo "==============================================================="

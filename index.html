@@ -52,10 +52,10 @@
 
      The ?v= below is what makes a browser let go of the icon it has cached;
      node scripts/stamp.mjs moves all of them together. -->
-<link rel="icon" href="favicon.ico?v=3" sizes="any">
-<link rel="icon" type="image/png" href="images/favicon.png?v=3">
-<link rel="apple-touch-icon" href="images/apple-touch-icon.png?v=3">
-<link rel="manifest" href="site.webmanifest?v=3">
+<link rel="icon" href="favicon.ico?v=4" sizes="any">
+<link rel="icon" type="image/png" href="images/favicon.png?v=4">
+<link rel="apple-touch-icon" href="images/apple-touch-icon.png?v=4">
+<link rel="manifest" href="site.webmanifest?v=4">
 
 <!-- One face, five weights. 800 is not decoration: the Bluepill wordmark and
      the figures are set in it, and Inter's 700 is visibly lighter than the
@@ -75,7 +75,7 @@
       media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"></noscript>
 
-<link rel="stylesheet" href="assets/css/styles.css?v=3">
+<link rel="stylesheet" href="assets/css/styles.css?v=4">
 </head>
 <body>
 
@@ -157,8 +157,8 @@
 
   <div class="hero__frame">
     <picture>
-      <source srcset="images/hero.webp?v=3" type="image/webp">
-      <img class="hero__img" src="images/hero.jpg?v=3" alt=""
+      <source srcset="images/hero.webp?v=4" type="image/webp">
+      <img class="hero__img" src="images/hero.jpg?v=4" alt=""
            width="2048" height="1152" fetchpriority="high" decoding="async">
     </picture>
   </div>
@@ -205,6 +205,10 @@
           <dd>$PFEc distributed</dd>
         </div>
         <div class="ingredients__row">
+          <dt>Minimum to earn</dt>
+          <dd>10,000 $BLUEPILL</dd>
+        </div>
+        <div class="ingredients__row">
           <dt>Blockchain</dt>
           <dd>Base chain</dd>
         </div>
@@ -224,6 +228,19 @@
         asset on Base, whose contract reports <code>symbol()</code> as
         “PFEc”. It is a token, not Pfizer stock, and carries no equity,
         dividend, voting or shareholder rights of any kind.
+      </p>
+
+      <!-- Straight from this token's own Stockify panel, read by
+           scripts/panel-probe.mjs rather than assumed: the 90/10 split, the
+           round cadence, and the 10,000-coin floor. The floor in particular
+           belongs on the page — a holder with 9,000 coins earns nothing, and
+           finding that out from a dashboard that never mentioned it is the
+           kind of surprise the whole site exists to avoid. -->
+      <p class="label-card__note">
+        Payouts run in rounds and are pro-rata on the balance you hold when a
+        round runs — there is nothing to claim. Holders under 10,000 coins are
+        skipped, and their slice stays with everyone above the line. Of each
+        round, <b>90% goes to holders</b> and 10% to the protocol.
       </p>
 
     </article>
@@ -458,7 +475,7 @@
 <!-- ?v= is the cache buster: run `node scripts/stamp.mjs` on every deploy,
      which moves every ?v= here and `version` in config.js together. Skip it
      and a CDN keeps serving the previous config.js and app.js. -->
-<script src="config.js?v=3"></script>
-<script src="assets/js/app.js?v=3"></script>
+<script src="config.js?v=4"></script>
+<script src="assets/js/app.js?v=4"></script>
 </body>
 </html>

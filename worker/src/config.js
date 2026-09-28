@@ -98,20 +98,25 @@ export const STREAMS = [
 
 /* Share of the outflow that reaches holders — the rest is the protocol's cut.
 
-   ⚠⚠ UNVERIFIED, AND THERE IS EVIDENCE AGAINST 0.9 FOR THIS TOKEN. It is
-   what $BOX's, $BLUE's and $PURR's panels read — but this token's /api/coins
-   entry carries `platform_bps: 3000`, which is 30% in basis points. If that
-   is the protocol's cut of the reward flow then holders receive 0.70, and
-   this constant overstates every payout by about 28%.
+   ✔ VERIFIED against THIS token's own Stockify panel, which states:
+   "TO HOLDERS 90% — 10% protocol · 0% creator". Read by panel-probe on
+   2026-09-28, not inherited from the siblings that share the figure.
 
-   Left at 0.9 rather than swapped for a second guess: both are guesses, and
-   with zero swaps the measured outflow is zero, so 0.9 × 0 = 0.7 × 0 and
-   nothing on the page is wrong yet. It WILL be wrong the moment this token
-   trades.
+   The same run cleared a false alarm: /api/coins carries `platform_bps:
+   3000`, which reads as 30% in basis points and looked like evidence for
+   0.70. It is not the holder split. Do not "correct" this to 0.7 on the
+   strength of that field.
 
-   RESOLVE BEFORE ANNOUNCING ANY PAYOUT FIGURE. scripts/panel-probe.mjs
-   prints this token's own Stockify panel beside what this site publishes;
-   on $BLUE those agreed to five decimals, which is the bar.
+   Note the panel also states a floor the indexer does NOT model: "Holders
+   under 10,000 coins are skipped and their slice stays with everyone above
+   the line." holderPayout() below therefore computes what LEAVES the index
+   for holders in aggregate, which is the right figure for a "total
+   distributed" tile, but it is not a per-wallet entitlement.
+
+   Still owed: the panel's PAID OUT SO FAR reads "—", so 0.9 is confirmed as
+   a SETTING and has never been reconciled against a real payout. Re-run
+   panel-probe after the first payout round; on $BLUE the two agreed to five
+   decimals once money had moved, and that is the bar.
 
    Better still, set PROTOCOL_ADDRESS if the protocol's address turns up — the
    cut is then subtracted exactly and survives the percentage changing. */

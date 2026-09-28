@@ -21,7 +21,7 @@ window.SITE_CONFIG = {
      a browser actually has rather than guessing at a cache. Bump it together
      with the ?v= on the script tags in index.html whenever you deploy —
      `node scripts/stamp.mjs` moves all of them at once. */
-  version: '3',
+  version: '4',
 
   /* ---- Token ---------------------------------------------------------- */
 
@@ -72,22 +72,23 @@ window.SITE_CONFIG = {
 
   /* Holders' share of what leaves the rewards index — the rest is the
      protocol's cut, so the outflow is NOT the distributed figure on its own.
-     ⚠⚠ UNVERIFIED, AND THERE IS NOW EVIDENCE AGAINST 0.9. It is the split
-     $BOX's, $BLUE's and $PURR's panels all read — but this token's own
-     /api/coins entry carries `platform_bps: 3000`, which is 30% in basis
-     points. If that is the protocol's cut of the reward flow, holders get
-     0.70 and this constant overstates every payout by about 28%.
+     ✔ VERIFIED against THIS token's own Stockify panel, which states in as
+     many words: "TO HOLDERS 90% — 10% protocol · 0% creator". Read by
+     scripts/panel-probe.mjs on 2026-09-28, not inherited from the siblings
+     that happen to share the figure.
 
-     It is left at 0.9 rather than swapped for a second guess, because both
-     are guesses and the tile reads 0 either way right now: the token has not
-     traded, so the measured outflow is zero and 0.9 × 0 = 0.7 × 0.
+     That run also cleared a false alarm worth recording. This token's
+     /api/coins carries `platform_bps: 3000`, which reads as 30% in basis
+     points and looked like evidence the split was really 0.70. It is not the
+     holder split — the panel is unambiguous at 90/10/0. Do not "correct"
+     this constant to 0.7 on the strength of that field.
 
-     RESOLVE THIS BEFORE ANY PAYOUT FIGURE IS ANNOUNCED. scripts/panel-probe.mjs
-     reads THIS token's own Stockify panel and prints it beside what the site
-     publishes; on $BLUE those agreed to five decimal places, which is the bar.
-     Better still, set PROTOCOL_ADDRESS in worker/src/config.js if the
-     protocol's address turns up — the cut is then subtracted exactly and
-     survives the percentage changing. */
+     Still outstanding: the panel's own PAID OUT SO FAR reads "—" because
+     nothing has been distributed yet, so the 0.9 is confirmed as a SETTING
+     but has never been reconciled against a real payout. On $BLUE the panel
+     and the indexer agreed to five decimals once money had actually moved;
+     that check is still owed here and should be run after the first payout
+     round. */
   holderShare: 0.9,
 
   /* Related contracts.
