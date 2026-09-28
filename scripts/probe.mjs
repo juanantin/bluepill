@@ -120,13 +120,32 @@ async function flows(party, address, from, to) {
   let cursor = from;
   let span = CHUNK;
 
+  /* Asked UNFILTERED — no `address` — on purpose: that reports whichever
+     token actually moved through the distributor rather than trusting a
+     guess about which one should have. Plenty of public nodes refuse the
+     question outright, though, which config.js already warns about, and
+     mainnet.base.org is one of them: it answers a bare HTTP 400 with no
+     message, at every window size from 10,000 blocks down to the narrowing
+     floor. That is not a range complaint, so narrowing never reaches an
+     answer — it just spends a thousand requests arriving at the same 400.
+
+     So the FIRST refusal switches to naming the reward token and starts
+     over at full width. The filtered query is the weaker question and the
+     log says so, but a weaker answer beats the build failing for a reason
+     that has nothing to do with the site. */
+  const REWARD = CFG.rewardTokenAddress;
+  let addressFilter = null;
+  let triedFiltered = false;
+
   while (cursor <= to) {
     const end = Math.min(cursor + span - 1, to);
     let logs;
+    const filter = {
+      topics, fromBlock: '0x' + cursor.toString(16), toBlock: '0x' + end.toString(16),
+    };
+    if (addressFilter) filter.address = addressFilter;
     try {
-      logs = await rpc('eth_getLogs', [{
-        topics, fromBlock: '0x' + cursor.toString(16), toBlock: '0x' + end.toString(16),
-      }]);
+      logs = await rpc('eth_getLogs', [filter]);
     } catch (err) {
       /* Narrow for anything that is not plainly about the node. Base's public
          RPC has started answering HTTP 413 for a window whose logs are too
@@ -137,7 +156,28 @@ async function flows(party, address, from, to) {
          had it. */
       const aboutTheNode = /HTTP (40[1-5])|fetch failed|ECONN|ETIMEDOUT|unauthorized|forbidden|not supported/i
         .test(err.message || '');
+
+      /* Before narrowing at all: a node that will not answer an unfiltered
+         getLogs says so identically at every width, so try naming the token
+         once. Only once — if the filtered form fails too, the problem is
+         something else and narrowing is still the right next move. */
+      if (!triedFiltered && !addressFilter && REWARD) {
+        triedFiltered = true;
+        addressFilter = REWARD;
+        span = CHUNK;
+        console.log(`  note: this node refused an unfiltered eth_getLogs (${err.message});`
+                  + ` retrying filtered to ${REWARD} — so the flows below are`
+                  + ' that token only, not "whichever token moved"');
+        continue;
+      }
+
       if (!aboutTheNode && span > 100) { span = Math.floor(span / 2); continue; }
+      /* Say what shape of request died. Diagnosing the bare "probe failed:
+         HTTP 400" this used to print took three trips through the job log. */
+      err.message = `${err.message} — on eth_getLogs `
+        + `${addressFilter ? `address=${addressFilter}` : '(unfiltered)'} `
+        + `topics=${JSON.stringify(topics)} span=${span} `
+        + `blocks ${cursor}..${end}`;
       throw err;
     }
     for (const l of logs) {
