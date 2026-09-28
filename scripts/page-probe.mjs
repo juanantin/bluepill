@@ -81,8 +81,8 @@ if (MOBILE) console.log('mobile: 390x844, cold cache');
 if (process.env.SEED_ZEROS) {
   const cfgSrc = await readFile(path.join(ROOT, 'config.js'), 'utf8');
   const token = /contractAddress:\s*'([^']+)'/.exec(cfgSrc)[1].toLowerCase();
-  const version = /'purr:stats:(v\d+):'/.exec(await readFile(path.join(ROOT, 'assets/js/app.js'), 'utf8'))[1];
-  const key = `purr:stats:${version}:${token}`;
+  const version = /'bluepill:stats:(v\d+):'/.exec(await readFile(path.join(ROOT, 'assets/js/app.js'), 'utf8'))[1];
+  const key = `bluepill:stats:${version}:${token}`;
   await page.addInitScript(([k, poison]) => {
     try { localStorage.setItem(k, poison); } catch { /* ignore */ }
   }, [key, JSON.stringify({ at: Date.now(), values: { fees: 0, distributedUsd: 0, distributed: 0, holders: 0 } })]);

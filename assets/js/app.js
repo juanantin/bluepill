@@ -379,7 +379,7 @@
     }, Promise.resolve(null));
   }
 
-  var CACHE_KEY = 'purr:holders:' + address.toLowerCase();
+  var CACHE_KEY = 'bluepill:holders:' + address.toLowerCase();
   var CACHE_VERSION = 2;    // bump when the cached shape changes
 
   function readCache(startBlock) {
@@ -1126,7 +1126,7 @@
      drops the 7,205,199 that came of picking the loudest token; v4 drops the
      zero dollar figures the dead scan left behind, which the derivation then
      refused to overwrite. */
-  var STATS_KEY = 'purr:stats:v4:' + String(address).toLowerCase();
+  var STATS_KEY = 'bluepill:stats:v4:' + String(address).toLowerCase();
 
   function readStats() {
     try {

@@ -52,10 +52,10 @@
 
      The ?v= below is what makes a browser let go of the icon it has cached;
      node scripts/stamp.mjs moves all of them together. -->
-<link rel="icon" href="favicon.ico?v=10" sizes="any">
-<link rel="icon" type="image/png" href="images/favicon.png?v=10">
-<link rel="apple-touch-icon" href="images/apple-touch-icon.png?v=10">
-<link rel="manifest" href="site.webmanifest?v=10">
+<link rel="icon" href="favicon.ico?v=11" sizes="any">
+<link rel="icon" type="image/png" href="images/favicon.png?v=11">
+<link rel="apple-touch-icon" href="images/apple-touch-icon.png?v=11">
+<link rel="manifest" href="site.webmanifest?v=11">
 
 <!-- One face, five weights. 800 is not decoration: the Bluepill wordmark and
      the figures are set in it, and Inter's 700 is visibly lighter than the
@@ -75,7 +75,7 @@
       media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"></noscript>
 
-<link rel="stylesheet" href="assets/css/styles.css?v=10">
+<link rel="stylesheet" href="assets/css/styles.css?v=11">
 </head>
 <body>
 
@@ -165,14 +165,14 @@
 
   <div class="hero__frame">
     <picture>
-      <source srcset="images/hero.webp?v=10" type="image/webp">
+      <source srcset="images/hero.webp?v=11" type="image/webp">
       <!-- 1536x1024 as delivered, and .hero__frame is set to that same 3:2,
            so nothing is cropped at any width. alt="" because the artwork's
            own wording is already the <h1> above — a screen reader that
            described it too would read the pitch twice.
            fetchpriority=high: it is the largest paint and the only thing
            above the fold. -->
-      <img class="hero__img" src="images/hero.jpg?v=10" alt=""
+      <img class="hero__img" src="images/hero.jpg?v=11" alt=""
            width="1536" height="1024" fetchpriority="high" decoding="async">
     </picture>
   </div>
@@ -494,7 +494,7 @@
 <!-- ?v= is the cache buster: run `node scripts/stamp.mjs` on every deploy,
      which moves every ?v= here and `version` in config.js together. Skip it
      and a CDN keeps serving the previous config.js and app.js. -->
-<script src="config.js?v=10"></script>
-<script src="assets/js/app.js?v=10"></script>
+<script src="config.js?v=11"></script>
+<script src="assets/js/app.js?v=11"></script>
 </body>
 </html>
