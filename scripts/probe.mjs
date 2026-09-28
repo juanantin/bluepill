@@ -31,7 +31,12 @@ function siteConfig() {
 const CFG = siteConfig();
 const RPC_URL = process.env.RPC_URL || 'https://mainnet.base.org';
 const START_BLOCK = Number(process.env.START_BLOCK || CFG.launchBlock || 0);
-const CHUNK = Number(process.env.CHUNK_SIZE || 10000);
+/* 2,000, not 10,000. The indexer that actually publishes scans the same
+   range against the same public RPC at 2,000 and has never missed a sync,
+   while 10,000 here drew an HTTP 413 on the very first window — a payload
+   this node would not serialise — and then spent eight halvings arriving
+   back at a width that works. Start where the working scanner starts. */
+const CHUNK = Number(process.env.CHUNK_SIZE || 2000);
 const CHAIN = CFG.chain || 'base';
 
 const TOKEN = CFG.contractAddress;
@@ -62,6 +67,19 @@ const ENDPOINTS = [RPC_URL, ...(CFG.sources?.holders?.onchain?.rpcUrls || [])]
 const CANNOT = /not supported|unsupported|method not found|pruned|not available|header not found|missing trie node|HTTP (40[1-5])|unauthorized|forbidden|up to a \d+ block range|block range should work|limited to \d+ ?- ?\d+ blocks?|max(?:imum)? (?:of )?\d+ blocks?/i;
 
 const TRANSIENT = /HTTP (408|429|5\d\d)|fetch failed|ECONN|ETIMEDOUT|socket|healthy|timeout/i;
+
+/* Ambiguous: 400 and 413 say something is wrong without saying whether it is
+   the NODE or the REQUEST. 413 is a payload this node would not serialise;
+   400 is whatever a gateway feels like returning, throttling included.
+
+   Neither class matched them, so both were rethrown from the FIRST endpoint
+   and never rotated — a probe run died on mainnet.base.org with the other
+   six URLs untouched. That is the same gap the CANNOT comment above
+   describes for "method not supported"; these two codes had simply never
+   been added to it. Treated like CANNOT: try every other endpoint, and only
+   if all of them refuse does it reach the caller, which narrows the window.
+   Rotating first costs at most six calls. Not rotating cost the whole run. */
+const AMBIGUOUS = /HTTP (400|413)\b/i;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 let rpcCalls = 0;
@@ -94,7 +112,7 @@ async function rpc(method, params = []) {
            than after three polite retries: a discovery run lost its whole
            distributor check to one endpoint answering "The method eth_getLogs
            is not supported" while six others sat unused. */
-        if (CANNOT.test(err.message || '')) break;
+        if (CANNOT.test(err.message || '') || AMBIGUOUS.test(err.message || '')) break;
         if (!TRANSIENT.test(err.message || '')) throw err;
         await sleep(400 * Math.pow(3, attempt));
       }
