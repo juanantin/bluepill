@@ -36,7 +36,7 @@
      the delivered files, not picked by eye: --hero-ground is the mean of the
      header's own top and bottom border bands, --page the mean of the pill
      field's top edge. A guessed value here reads as a seam. */
-  --hero-ground:  #3a72d7;
+  --hero-ground:  #3f6dc5;
   --page:         #2b5ebf;
   /* The scrim the footer lays over the pill field. LIGHT, not dark, for two
      reasons that agreed with each other: the mockup's lower band is white
@@ -130,8 +130,8 @@ a { color: inherit; text-decoration: none; }
   inset: 0;
   z-index: -1;
   background: var(--page) center / cover no-repeat;
-  background-image: image-set(url('../../images/bg.webp?v=23') type('image/webp'),
-                              url('../../images/bg.jpg?v=23') type('image/jpeg'));
+  background-image: image-set(url('../../images/bg.webp?v=24') type('image/webp'),
+                              url('../../images/bg.jpg?v=24') type('image/jpeg'));
 }
 
 /* ---------- Top bar --------------------------------------------------- */
