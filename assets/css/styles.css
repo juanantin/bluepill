@@ -130,8 +130,8 @@ a { color: inherit; text-decoration: none; }
   inset: 0;
   z-index: -1;
   background: var(--page) center / cover no-repeat;
-  background-image: image-set(url('../../images/bg.webp?v=22') type('image/webp'),
-                              url('../../images/bg.jpg?v=22') type('image/jpeg'));
+  background-image: image-set(url('../../images/bg.webp?v=23') type('image/webp'),
+                              url('../../images/bg.jpg?v=23') type('image/jpeg'));
 }
 
 /* ---------- Top bar --------------------------------------------------- */
@@ -285,12 +285,32 @@ a { color: inherit; text-decoration: none; }
 
 .hero {
   position: relative;
-  background: var(--hero-ground);
+  /* No ground colour here. The frame below fades its own bottom edge to
+     TRANSPARENT, and a colour on this wrapper would sit in the gap and be
+     the very seam the fade exists to remove. */
 }
 
 .hero__frame {
   position: relative;
   width: 100%;
+
+  /* The join between the hero and the pill field below it was a hard line.
+     This fades the bottom edge of the photograph out instead — and because
+     .pillfield is an absolutely positioned layer spanning the whole
+     document, what shows through the fade is the OTHER photograph rather
+     than a flat colour. The two pictures cross-dissolve into each other.
+
+     A mask, not a gradient overlay, for exactly that reason: an overlay can
+     only fade the hero towards a colour it has been told to end on, which
+     means guessing what is underneath and being wrong wherever the field
+     moves. A mask removes the hero and lets whatever is really behind it
+     arrive.
+
+     --hero-fade scales with the viewport so the blend stays proportional
+     rather than becoming a thick band on a phone. */
+  --hero-fade: clamp(36px, 5.5vw, 84px);
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - var(--hero-fade)), transparent 100%);
+          mask-image: linear-gradient(to bottom, #000 calc(100% - var(--hero-fade)), transparent 100%);
   /* EXACTLY the delivered artwork's ratio — 1536×1024 is 3:2 — so
      object-fit: cover crops nothing at any width. That is the point: the
      carton spans almost the full frame, and a horizontal crop takes its ends
@@ -307,6 +327,9 @@ a { color: inherit; text-decoration: none; }
      aspect-ratio plus centred cover is what prevents it. */
   max-height: 78vh;
   overflow: hidden;
+  /* Sits under the photograph while it loads. It is masked along with
+     everything else here, so it fades out at the bottom too and cannot
+     reintroduce the hard edge. */
   background: var(--hero-ground);
 }
 
