@@ -9,11 +9,13 @@
    previous JS for hours after the HTML updates, which looks exactly like a
    push that never landed.
 
-   The stylesheet is included because it grew its own ?v= references when the
-   pill field moved into CSS. Left out, those pinned at v=1 forever while
-   every other number advanced — so a replaced background would keep serving
-   the old picture, and the one file that says which version is live would
-   not mention it.
+   The stylesheet is in the list because it once carried its own ?v= — the
+   pill field was loaded from CSS — and left out, those pinned at v=1 while
+   every other number advanced, so a replaced background kept serving the
+   old picture. That field has since been removed and the file currently has
+   none, which is why the run reports "0 in assets/css/styles.css". It stays
+   listed on purpose: the next background or font loaded from CSS should be
+   stamped by default rather than by someone remembering this.
 
    Run before deploying:  node scripts/stamp.mjs        (next number)
                           node scripts/stamp.mjs 7      (a specific one)

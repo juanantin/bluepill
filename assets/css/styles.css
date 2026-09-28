@@ -67,13 +67,12 @@ html { -webkit-text-size-adjust: 100%; }
 
 body {
   margin: 0;
-  /* position: relative is load-bearing, not tidiness: it makes <body> the
-     containing block for .pillfield, which is what lets that absolutely
-     positioned layer stretch to the whole document instead of one viewport.
-     Remove it and the pill field stops at the fold. */
-  position: relative;
-  /* Colour only — the fallback under the photograph, and what shows before
-     it loads. The picture itself lives on .pillfield below. */
+  /* Flat colour behind everything below the hero. There was a photographic
+     pill field here — first pinned to the viewport, then scrolling — and the
+     owner asked for it gone, so the ground is the blue it was sampled from
+     and nothing else. The original is kept in images/src/ and
+     images/src/README.md has the one command that regenerates the served
+     files if it is ever wanted back. */
   background: var(--page);
   color: var(--ink);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
@@ -109,31 +108,12 @@ a { color: inherit; text-decoration: none; }
   padding-inline: var(--gutter);
 }
 
-/* ---------- The pill field -------------------------------------------- */
-/* The supplied pill photograph, behind everything below the hero. The panels
-   are white cards floating on it, as the mockup has them.
-
-   It SCROLLS WITH THE PAGE. It was pinned to the viewport at first — the
-   parallax that was asked for — and the owner did not like the effect of the
-   background holding still while the content slid over it, so it is one
-   picture that moves with everything else now.
-
-   `absolute`, not `fixed`, is the whole of that change: with <body> as the
-   containing block it stretches to the full document rather than the
-   viewport, so it travels with the content. Keep body's `position: relative`
-   below — without it this would size to the viewport at the document origin
-   and leave the lower half of a long page on the flat --page blue.
-
-   aria-hidden and empty: it is scenery, and a screen reader announcing it
-   would be announcing nothing. */
-.pillfield {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: var(--page) center / cover no-repeat;
-  background-image: image-set(url('../../images/bg.webp?v=19') type('image/webp'),
-                              url('../../images/bg.jpg?v=19') type('image/jpeg'));
-}
+/* The pill field that used to sit here is gone at the owner's request — it
+   was a photographic backdrop behind everything under the hero, tried both
+   pinned to the viewport and scrolling. The ground is now plain --page, set
+   on <body>. images/src/bluepill_bg.png is kept and images/src/README.md
+   carries the command that regenerates the served files, so bringing it
+   back is one command and one rule, not a hunt for the original. */
 
 /* ---------- Top bar --------------------------------------------------- */
 /* Sits OVER the hero rather than above it, so the page opens on the artwork.
@@ -231,6 +211,17 @@ a { color: inherit; text-decoration: none; }
 
 .btn:hover { background: rgba(255, 255, 255, .26); border-color: #fff; translate: 0 -1px; }
 .btn:active { translate: 0 0; }
+
+/* X and the chart carry no painted label, so they are round rather than a
+   pill with nothing in it. Square the box to its own height and drop the
+   side padding; the 42px hit area is unchanged, which matters more than the
+   shape — a 24px icon button fails the minimum touch target and these are
+   the two controls most likely to be tapped on a phone. */
+.btn--icon {
+  width: 42px;
+  padding-inline: 0;
+  gap: 0;
+}
 
 .btn:focus-visible {
   outline: 3px solid #fff;
@@ -730,6 +721,8 @@ a { color: inherit; text-decoration: none; }
   /* The three actions stay on one line, shedding padding and then their
      labels rather than wrapping under the Base mark. */
   .btn { height: 37px; padding-inline: 12px; font-size: 13.5px; gap: 6px; }
+  /* Stays square as it shrinks — a 37px circle, not a 12px-padded oval. */
+  .btn--icon { width: 37px; padding-inline: 0; }
   .btn__icon { width: 16px; height: 16px; }
   .actions { gap: 7px; }
 

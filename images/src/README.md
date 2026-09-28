@@ -8,7 +8,7 @@ than a request back to whoever made the picture.
 | Original | What it is | What comes from it |
 |---|---|---|
 | `bluepill_header.png` | The header photograph, 1536×1024 (3:2) | `images/hero.jpg`, `images/hero.webp`, `images/social.jpg` |
-| `bluepill_bg.png` | The pill field, 1101×1428 (portrait) | `images/bg.jpg`, `images/bg.webp` |
+| `bluepill_bg.png` | The pill field, 1101×1428 (portrait) | **nothing, currently.** The owner asked for the lower background to be removed, so `images/bg.*` are no longer served or referenced. The original is kept, and the command below regenerates them if it is ever wanted back. |
 | `bluepill_icon.png` | The pill mark, 1098×1098, already a clean transparent cut-out | every icon, and `/favicon.ico` |
 | `launch_banner.jpg`, `launch_mark.jpg` | The artwork the token was **launched** with, pulled off the platform by [`fetch-art.yml`](../../.github/workflows/fetch-art.yml) | nothing — kept as provenance. The owner's own files above supersede them. |
 
@@ -24,11 +24,13 @@ which is the entire point of this folder.
   `max-height: 78vh` cap so the hero does not eat the whole viewport, and
   `object-position: center 32%` biases what the cap trims onto the reflective
   floor at the bottom rather than the carton at the top.
-- **The pill field** is `.pillfield`, a `position: fixed` layer behind
-  everything below the hero — the parallax backdrop the panels float on. It is
-  a fixed ELEMENT rather than `background-attachment: fixed`, because iOS
-  Safari sizes a fixed background to the document instead of the viewport and
-  the picture arrives hugely zoomed.
+- **The pill field** is not used. It was a backdrop behind everything under
+  the hero, tried both pinned to the viewport (parallax) and scrolling with
+  the page; the owner did not want either, so the ground below the hero is
+  now flat `--page` blue set on `<body>`. To restore it: run the `bg` half of
+  the command below, add a full-document `position: absolute; inset: 0;
+  z-index: -1` layer with that image, and give `<body>` `position: relative`
+  so the layer has something to stretch against.
 - **The mark** is icons only.
 
 **If you replace any of them**, re-run the matching block below, then
