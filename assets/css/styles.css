@@ -124,8 +124,8 @@ a { color: inherit; text-decoration: none; }
   inset: 0;
   z-index: -1;
   background: var(--page) center / cover no-repeat;
-  background-image: image-set(url('../../images/bg.webp?v=15') type('image/webp'),
-                              url('../../images/bg.jpg?v=15') type('image/jpeg'));
+  background-image: image-set(url('../../images/bg.webp?v=17') type('image/webp'),
+                              url('../../images/bg.jpg?v=17') type('image/jpeg'));
 }
 
 /* ---------- Top bar --------------------------------------------------- */
