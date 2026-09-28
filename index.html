@@ -20,25 +20,24 @@
      And twitter:image is stated rather than left to fall back to og:image.
      The fallback is real but not universal, and writing it down costs a line.
 
-     ⚠ THE HOST BELOW IS A PLACEHOLDER AND WILL NOT RESOLVE. It is deliberately
-     obviously broken rather than subtly wrong — a plausible-looking guess is
-     how you ship a card that silently 404s for a week. Replace every
-     REPLACE-WITH-DEPLOYMENT-URL once Vercel is connected (SETUP.md step 4);
-     Vercel writes the URL into the repo's `homepage` field, so it can be read
-     back from the GitHub API rather than typed from memory. -->
+     The host is the live deployment, read from the repo's `homepage` field —
+     Vercel writes it there itself, so it is a reading rather than something
+     typed from memory. It replaced a deliberately-broken placeholder, which
+     is the right thing to ship in the gap before a deploy exists: a
+     plausible-looking guess is how a card silently 404s for a week. -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Bluepill">
-<meta property="og:url" content="https://REPLACE-WITH-DEPLOYMENT-URL/">
+<meta property="og:url" content="https://bluepill-three.vercel.app/">
 <meta property="og:title" content="Bluepill — $BLUEPILL">
 <meta property="og:description" content="Hold $BLUEPILL, earn $PFEc. 1B total supply on Base chain.">
-<meta property="og:image" content="https://REPLACE-WITH-DEPLOYMENT-URL/images/social.jpg">
+<meta property="og:image" content="https://bluepill-three.vercel.app/images/social.jpg">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="A Bluepill 50 mg carton on a bed of blue pills, each stamped with the Base logo.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@BluePill_Base">
-<meta name="twitter:image" content="https://REPLACE-WITH-DEPLOYMENT-URL/images/social.jpg">
+<meta name="twitter:image" content="https://bluepill-three.vercel.app/images/social.jpg">
 <meta name="twitter:image:alt" content="A Bluepill 50 mg carton on a bed of blue pills, each stamped with the Base logo.">
 <meta name="theme-color" content="#0b45a8">
 
@@ -52,10 +51,10 @@
 
      The ?v= below is what makes a browser let go of the icon it has cached;
      node scripts/stamp.mjs moves all of them together. -->
-<link rel="icon" href="favicon.ico?v=17" sizes="any">
-<link rel="icon" type="image/png" href="images/favicon.png?v=17">
-<link rel="apple-touch-icon" href="images/apple-touch-icon.png?v=17">
-<link rel="manifest" href="site.webmanifest?v=17">
+<link rel="icon" href="favicon.ico?v=19" sizes="any">
+<link rel="icon" type="image/png" href="images/favicon.png?v=19">
+<link rel="apple-touch-icon" href="images/apple-touch-icon.png?v=19">
+<link rel="manifest" href="site.webmanifest?v=19">
 
 <!-- One face, five weights. 800 is not decoration: the Bluepill wordmark and
      the figures are set in it, and Inter's 700 is visibly lighter than the
@@ -75,7 +74,7 @@
       media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"></noscript>
 
-<link rel="stylesheet" href="assets/css/styles.css?v=17">
+<link rel="stylesheet" href="assets/css/styles.css?v=19">
 </head>
 <body>
 
@@ -165,14 +164,14 @@
 
   <div class="hero__frame">
     <picture>
-      <source srcset="images/hero.webp?v=17" type="image/webp">
+      <source srcset="images/hero.webp?v=19" type="image/webp">
       <!-- 1536x1024 as delivered, and .hero__frame is set to that same 3:2,
            so nothing is cropped at any width. alt="" because the artwork's
            own wording is already the <h1> above — a screen reader that
            described it too would read the pitch twice.
            fetchpriority=high: it is the largest paint and the only thing
            above the fold. -->
-      <img class="hero__img" src="images/hero.jpg?v=17" alt=""
+      <img class="hero__img" src="images/hero.jpg?v=19" alt=""
            width="1536" height="1024" fetchpriority="high" decoding="async">
     </picture>
   </div>
@@ -494,7 +493,7 @@
 <!-- ?v= is the cache buster: run `node scripts/stamp.mjs` on every deploy,
      which moves every ?v= here and `version` in config.js together. Skip it
      and a CDN keeps serving the previous config.js and app.js. -->
-<script src="config.js?v=17"></script>
-<script src="assets/js/app.js?v=17"></script>
+<script src="config.js?v=19"></script>
+<script src="assets/js/app.js?v=19"></script>
 </body>
 </html>

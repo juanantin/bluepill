@@ -67,8 +67,13 @@ html { -webkit-text-size-adjust: 100%; }
 
 body {
   margin: 0;
-  /* Colour only. The photograph lives on .pillfield below, which is fixed to
-     the viewport so the content scrolls over it. */
+  /* position: relative is load-bearing, not tidiness: it makes <body> the
+     containing block for .pillfield, which is what lets that absolutely
+     positioned layer stretch to the whole document instead of one viewport.
+     Remove it and the pill field stops at the fold. */
+  position: relative;
+  /* Colour only — the fallback under the photograph, and what shows before
+     it loads. The picture itself lives on .pillfield below. */
   background: var(--page);
   color: var(--ink);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
@@ -105,27 +110,29 @@ a { color: inherit; text-decoration: none; }
 }
 
 /* ---------- The pill field -------------------------------------------- */
-/* The parallax backdrop: the supplied pill photograph, pinned to the
-   viewport so every section below the hero scrolls over it rather than
-   carrying it along. Everything above --page shows through — the panels are
-   white cards floating on it, exactly as the mockup has them.
+/* The supplied pill photograph, behind everything below the hero. The panels
+   are white cards floating on it, as the mockup has them.
 
-   Done as a FIXED ELEMENT rather than `background-attachment: fixed` on the
-   body, deliberately. iOS Safari has never handled fixed attachment
-   properly: it sizes the image to the document instead of the viewport, so
-   the picture arrives enormously zoomed and jitters while scrolling. A
-   position:fixed element is plain, well-supported layout and behaves the
-   same everywhere.
+   It SCROLLS WITH THE PAGE. It was pinned to the viewport at first — the
+   parallax that was asked for — and the owner did not like the effect of the
+   background holding still while the content slid over it, so it is one
+   picture that moves with everything else now.
+
+   `absolute`, not `fixed`, is the whole of that change: with <body> as the
+   containing block it stretches to the full document rather than the
+   viewport, so it travels with the content. Keep body's `position: relative`
+   below — without it this would size to the viewport at the document origin
+   and leave the lower half of a long page on the flat --page blue.
 
    aria-hidden and empty: it is scenery, and a screen reader announcing it
    would be announcing nothing. */
 .pillfield {
-  position: fixed;
+  position: absolute;
   inset: 0;
   z-index: -1;
   background: var(--page) center / cover no-repeat;
-  background-image: image-set(url('../../images/bg.webp?v=17') type('image/webp'),
-                              url('../../images/bg.jpg?v=17') type('image/jpeg'));
+  background-image: image-set(url('../../images/bg.webp?v=19') type('image/webp'),
+                              url('../../images/bg.jpg?v=19') type('image/jpeg'));
 }
 
 /* ---------- Top bar --------------------------------------------------- */
@@ -639,8 +646,20 @@ a { color: inherit; text-decoration: none; }
   color: var(--ink-soft);
 }
 
-.eco__logo { height: 42px; width: auto; }
-.eco__logo--stonks { height: 34px; }
+/* Stockify is smooth artwork, 800×261, and scales to anything. */
+.eco__logo { height: 54px; width: auto; }
+
+/* Stonks.Exchange is PIXEL ART — a pixel-font wordmark beside a pixel icon,
+   112px tall as supplied. It has to land on an INTEGER division of that or
+   the grid averages into mush: at the 34px it was first given (0.30×) the
+   wordmark was a grey smear and the icon unreadable. 56px is exactly half,
+   so every source pixel becomes one clean 2×2 average.
+
+   Keep any future value on 112/n — 56, 37⅓ is not one, 28. Matching the
+   other lockup's height is the wrong instinct here; matching the grid is
+   what makes it legible, and the two read as a pair anyway because the
+   wordmark is long and low where Stockify's is short and tall. */
+.eco__logo--stonks { height: 56px; }
 
 .eco__split {
   width: 1px;
@@ -721,8 +740,9 @@ a { color: inherit; text-decoration: none; }
   .stat__icon svg { width: 24px; height: 24px; }
 
   .eco { gap: 22px; }
-  .eco__logo { height: 34px; }
-  .eco__logo--stonks { height: 27px; }
+  .eco__logo { height: 32px; }
+  /* 28px = 112/4, the next integer division down. 27 was not one. */
+  .eco__logo--stonks { height: 28px; }
   .foot__tagline { letter-spacing: .16em; }
 }
 

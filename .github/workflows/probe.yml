@@ -137,16 +137,22 @@ jobs:
       - name: Probe the live site
         if: always()
         env:
-          # NO FALLBACK. The sibling repo this was copied from had ITS OWN
-          # deployment hard-coded here, which meant an unset SITE_URL sent
-          # this step off to probe a DIFFERENT TOKEN'S LIVE SITE and report
-          # it green — a pass for a page this repo has never deployed. The
-          # step below skips itself when this is empty, which is the honest
-          # answer: there is genuinely nothing to probe yet.
+          # Falls back to THIS REPOSITORY'S OWN homepage field, which Vercel
+          # writes when it connects — so the live pass configures itself and
+          # nobody has to remember a variable. vars.SITE_URL still wins, for
+          # probing somewhere else (a preview deploy, a custom domain).
           #
-          # Set the SITE_URL repository variable once Vercel is connected
-          # (Settings ▸ Secrets and variables ▸ Actions ▸ Variables).
-          SITE_URL: ${{ vars.SITE_URL }}
+          # What it must never fall back to is a hard-coded URL: the sibling
+          # this was copied from had ITS OWN deployment here, so an unset
+          # variable sent this step off to probe a DIFFERENT TOKEN'S LIVE
+          # SITE and report it green. A repository's own homepage cannot be
+          # another project's by construction, which is the whole reason it
+          # is safe to default to.
+          #
+          # Empty is still handled: the step below skips itself rather than
+          # polling nothing, which is the honest answer before a deploy
+          # exists.
+          SITE_URL: ${{ vars.SITE_URL || github.event.repository.homepage }}
         run: |
           set -uo pipefail
 
