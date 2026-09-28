@@ -21,7 +21,7 @@ window.SITE_CONFIG = {
      a browser actually has rather than guessing at a cache. Bump it together
      with the ?v= on the script tags in index.html whenever you deploy —
      `node scripts/stamp.mjs` moves all of them at once. */
-  version: '14',
+  version: '15',
 
   /* ---- Token ---------------------------------------------------------- */
 
@@ -138,7 +138,7 @@ window.SITE_CONFIG = {
   /* ---- Links ---------------------------------------------------------- */
 
   links: {
-    x: 'https://x.com/BluePillBase',
+    x: 'https://x.com/BluePill_Base',
 
     // Leave null to auto-build a DexScreener link from the contract address.
     chart: null,
@@ -146,13 +146,30 @@ window.SITE_CONFIG = {
     // The two lockups in the footer panel — both hrefs are written from here.
     // launchedIn is the platform's page for THIS token.
     //
-    // rewardsBy is DERIVED, not supplied: Stockify indexes live at
-    // /indices/<rewardsIndex lowercased>, which is the shape every sibling's
-    // panel link takes. The index below is the one /api/fee-routing named for
-    // this token. ⚠ Confirm it resolves before announcing — it is the one
-    // link on this page built by pattern rather than read from a source.
+    /* ⚠⚠ rewardsBy and contracts.rewardsIndex DISAGREE, and that is
+       deliberate until it is settled — do not "tidy" one to match the other.
+
+       The owner supplied this URL, naming index 0x05b9ca7d…badb2.
+       Three independent platform sources name a DIFFERENT one:
+         · /api/fee-routing  → routing "rewards", index 0x64cDA502…9F0E
+         · /api/coins        → fee_owner              0x64cDA502…9F0E
+         · the Stockify panel at /indices/0x64cda502… reports
+           "Coin 0x9aa5dd27…576a" — this token — and
+           "Index treasury 0x64cda502…", i.e. the URL's own address.
+
+       So the derived link resolves to a panel that really is this token's.
+       The owner's link may be a second index, a newer one, or a mistake, and
+       the difference is not cosmetic: contracts.rewardsIndex is what the
+       indexer sums, so the wrong one reports another index's flows as this
+       token's fees.
+
+       The link here is the OWNER'S, because scripts/panel-probe.mjs reads
+       this field and that is how the next run says what their URL actually
+       contains. contracts.rewardsIndex below stays on the three-source
+       address until that scrape settles it. Whichever wins, both must end up
+       pointing at the same place. */
     launchedIn: 'https://www.thestonks.exchange/token/0x9AA5dd27a7681E103880B159A358AC18FD04576A',
-    rewardsBy: 'https://www.stockify.finance/indices/0x64cda502645e0f6ead8d03d46beb6e04a5b99f0e',
+    rewardsBy: 'https://www.stockify.finance/indices/0x05b9ca7d9d36911411d65aa1e26a7995cc5badb2',
   },
 
   /* ======================================================================

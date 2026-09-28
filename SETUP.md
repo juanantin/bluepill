@@ -68,7 +68,7 @@ setting on the platform's panel, and artwork.
   so it can be excluded from the holder count, **never summed**.
 - `contracts.rewardsIndex` — the per-token distributor, and the only one of
   these that is yours. Not derivable on chain.
-- `links.x` — **set**: `https://x.com/BluePillBase`.
+- `links.x` — **set**: `https://x.com/BluePill_Base`.
 - `links.launchedIn` — **set** to the platform's page for this contract.
 - `links.rewardsBy` — **null.** This token's Stockify index URL
   (`https://www.stockify.finance/indices/0x…`). Still needed.
