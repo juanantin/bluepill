@@ -26,11 +26,11 @@
   "totalDistributedUsd": 0,
   "totalFeesCollected": 0,
   "totalFeesTokens": 0,
-  "holders": 4,
+  "holders": 6,
   "marketCap": null,
   "liquidity": null,
   "volume24h": 227.73,
-  "updatedAt": "2026-09-30T15:51:54.832Z",
+  "updatedAt": "2026-09-30T20:22:52.793Z",
   "meta": {
     "synced": true,
     "blocksBehind": 0,
