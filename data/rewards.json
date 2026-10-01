@@ -29,8 +29,8 @@
   "holders": 6,
   "marketCap": null,
   "liquidity": null,
-  "volume24h": 0,
-  "updatedAt": "2026-10-01T13:31:02.042Z",
+  "volume24h": null,
+  "updatedAt": "2026-10-01T19:00:23.162Z",
   "meta": {
     "synced": true,
     "blocksBehind": 0,
