@@ -23,17 +23,17 @@
     "deliberately not seeded here."
   ],
   "totalDistributed": 0.065237454,
-  "totalDistributedUsd": 2.23633992312,
-  "totalFeesCollected": 2.4848228224,
+  "totalDistributedUsd": 1.86970543164,
+  "totalFeesCollected": 2.0774510528,
   "totalFeesTokens": 0.07248608,
   "holders": 7,
   "marketCap": null,
   "liquidity": null,
   "volume24h": null,
-  "updatedAt": "2026-10-05T00:13:37.473Z",
+  "updatedAt": "2026-10-05T05:53:04.129Z",
   "meta": {
     "synced": true,
     "blocksBehind": 0,
-    "kexPriceUsd": 34.28
+    "kexPriceUsd": 28.66
   }
 }
