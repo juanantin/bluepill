@@ -22,18 +22,18 @@
     "The figures printed on the design mockup are PLACEHOLDERS and are",
     "deliberately not seeded here."
   ],
-  "totalDistributed": 0.065237454,
-  "totalDistributedUsd": 2.38703844186,
-  "totalFeesCollected": 2.6522656672,
-  "totalFeesTokens": 0.07248608,
-  "holders": 7,
+  "totalDistributed": null,
+  "totalDistributedUsd": null,
+  "totalFeesCollected": null,
+  "totalFeesTokens": null,
+  "holders": null,
   "marketCap": null,
   "liquidity": null,
   "volume24h": null,
-  "updatedAt": "2026-10-08T10:25:32.353Z",
+  "updatedAt": "2026-10-08T17:35:35.900Z",
   "meta": {
-    "synced": true,
-    "blocksBehind": 0,
-    "kexPriceUsd": 36.59
+    "synced": false,
+    "blocksBehind": 12868,
+    "kexPriceUsd": 44.15
   }
 }
